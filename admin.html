@@ -293,14 +293,16 @@ async function saveToGitHub() {
   if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
   const btn = document.getElementById('save-btn');
   btn.disabled = true; setStatus('保存中...', '');
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(collectData(), null, 2))));
   try {
+    const json = JSON.stringify(collectData(), null, 2);
+    // 日本語を含むJSONを正しくbase64エンコード
+    const encoded = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode('0x' + p1)));
     let sha = null;
     const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
     });
     if (getRes.ok) { sha = (await getRes.json()).sha; }
-    const body = { message: 'Update shop data', content };
+    const body = { message: 'Update shop data', content: encoded };
     if (sha) body.sha = sha;
     const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
       method: 'PUT',
@@ -309,7 +311,7 @@ async function saveToGitHub() {
     });
     if (putRes.ok) { setStatus('✓ 保存しました', 'ok'); }
     else { const e = await putRes.json(); setStatus('保存失敗: ' + (e.message || ''), 'err'); }
-  } catch(e) { setStatus('通信エラー', 'err'); }
+  } catch(e) { setStatus('通信エラー: ' + e.message, 'err'); }
   btn.disabled = false;
 }
 
@@ -322,9 +324,9 @@ async function loadFromGitHub() {
     });
     if (!res.ok) { setStatus('データなし（新規）', ''); return; }
     const json = await res.json();
-    // content内の改行を除去してからデコード
     const cleaned = json.content.replace(/\n/g, '');
-    const text = decodeURIComponent(escape(atob(cleaned)));
+    // 保存時と同じ方式でデコード
+    const text = decodeURIComponent(atob(cleaned).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
     const data = JSON.parse(text);
     applyData(data);
     setStatus('✓ 読み込みました', 'ok');
