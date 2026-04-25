@@ -347,6 +347,7 @@ async function loadFromGitHub() {
     setStatus('✓ 読み込みました', 'ok');
   } catch(e) {
     console.error('読み込みエラー:', e);
+    alert('エラー詳細:\n' + e.message + '\n' + e.stack);
     setStatus('読み込みエラー: ' + e.message, 'err');
   }
 }
