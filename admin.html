@@ -321,10 +321,17 @@ async function loadFromGitHub() {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
     });
     if (!res.ok) { setStatus('データなし（新規）', ''); return; }
-    const data = JSON.parse(decodeURIComponent(escape(atob((await res.json()).content))));
+    const json = await res.json();
+    // content内の改行を除去してからデコード
+    const cleaned = json.content.replace(/\n/g, '');
+    const text = decodeURIComponent(escape(atob(cleaned)));
+    const data = JSON.parse(text);
     applyData(data);
     setStatus('✓ 読み込みました', 'ok');
-  } catch(e) { setStatus('読み込みエラー', 'err'); }
+  } catch(e) {
+    console.error('読み込みエラー詳細:', e);
+    setStatus('読み込みエラー: ' + e.message, 'err');
+  }
 }
 
 function collectData() {
