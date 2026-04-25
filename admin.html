@@ -336,21 +336,21 @@ async function loadFromGitHub() {
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
       const text = new TextDecoder('utf-8').decode(bytes);
       data = JSON.parse(text);
-    } else if (json.download_url) {
-      // contentが空の場合はdownload_urlから直接取得
-      alert('download_url: ' + json.download_url);
-      const dlRes = await fetch(json.download_url, {
-        headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-      });
-      data = await dlRes.json();
     } else {
-      setStatus('データなし（新規）', ''); return;
+      // contentが空の場合はraw形式で再取得
+      const rawRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.raw+json'
+        }
+      });
+      const text = await rawRes.text();
+      data = JSON.parse(text);
     }
     applyData(data);
     setStatus('✓ 読み込みました', 'ok');
   } catch(e) {
     console.error('読み込みエラー:', e);
-    alert('エラー詳細:\n' + e.message + '\n' + e.stack);
     setStatus('読み込みエラー: ' + e.message, 'err');
   }
 }
