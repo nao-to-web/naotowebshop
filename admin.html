@@ -295,8 +295,11 @@ async function saveToGitHub() {
   btn.disabled = true; setStatus('保存中...', '');
   try {
     const json = JSON.stringify(collectData(), null, 2);
-    // 日本語を含むJSONを正しくbase64エンコード
-    const encoded = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode('0x' + p1)));
+    // TextEncoderで確実にUTF-8バイト列に変換してからbase64エンコード
+    const bytes = new TextEncoder().encode(json);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    const encoded = btoa(binary);
     let sha = null;
     const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
@@ -325,8 +328,11 @@ async function loadFromGitHub() {
     if (!res.ok) { setStatus('データなし（新規）', ''); return; }
     const json = await res.json();
     const cleaned = json.content.replace(/\n/g, '');
-    // 保存時と同じ方式でデコード
-    const text = decodeURIComponent(atob(cleaned).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    // TextDecoderでUTF-8として正しくデコード
+    const binary = atob(cleaned);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const text = new TextDecoder('utf-8').decode(bytes);
     const data = JSON.parse(text);
     applyData(data);
     setStatus('✓ 読み込みました', 'ok');
