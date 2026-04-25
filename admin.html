@@ -328,6 +328,8 @@ async function loadFromGitHub() {
     if (!res.ok) { setStatus('データなし（新規）', ''); return; }
     const json = await res.json();
     const cleaned = json.content.replace(/\s/g, '');
+    // デバッグ用
+    alert('content長さ: ' + json.content.length + '\ncleaned長さ: ' + cleaned.length + '\n最初の50文字: ' + cleaned.substring(0, 50));
     const binary = atob(cleaned);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
