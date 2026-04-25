@@ -295,6 +295,8 @@ async function saveToGitHub() {
   btn.disabled = true; setStatus('保存中...', '');
   try {
     const json = JSON.stringify(collectData(), null, 2);
+    // デバッグ用：保存するデータを確認
+    alert('保存データ（最初の100文字）:\n' + json.substring(0, 100));
     // TextEncoderで確実にUTF-8バイト列に変換してからbase64エンコード
     const bytes = new TextEncoder().encode(json);
     let binary = '';
