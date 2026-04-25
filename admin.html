@@ -327,14 +327,22 @@ async function loadFromGitHub() {
     });
     if (!res.ok) { setStatus('データなし（新規）', ''); return; }
     const json = await res.json();
-    const cleaned = json.content.replace(/\s/g, '');
-    // デバッグ用
-    alert('content長さ: ' + json.content.length + '\ncleaned長さ: ' + cleaned.length + '\n最初の50文字: ' + cleaned.substring(0, 50));
-    const binary = atob(cleaned);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    const text = new TextDecoder('utf-8').decode(bytes);
-    const data = JSON.parse(text);
+    let data;
+    if (json.content && json.content.trim().length > 0) {
+      // contentがある場合はbase64デコード
+      const cleaned = json.content.replace(/\s/g, '');
+      const binary = atob(cleaned);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const text = new TextDecoder('utf-8').decode(bytes);
+      data = JSON.parse(text);
+    } else if (json.download_url) {
+      // contentが空の場合はdownload_urlから直接取得
+      const dlRes = await fetch(json.download_url);
+      data = await dlRes.json();
+    } else {
+      setStatus('データなし（新規）', ''); return;
+    }
     applyData(data);
     setStatus('✓ 読み込みました', 'ok');
   } catch(e) {
