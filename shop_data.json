@@ -1,0 +1,23 @@
+{
+  "siteTitle": "NAO_to Web shop",
+  "conceptTitle": "ショップのタイトル",
+  "conceptBody": "ここにショップのコンセプトや紹介文を入力してください。",
+  "logoImg": "",
+  "coverImg": "",
+  "steps": [
+    {
+      "text": "（手順1を入力してください）",
+      "isPlaceholder": true
+    },
+    {
+      "text": "（手順2を入力してください）",
+      "isPlaceholder": true
+    },
+    {
+      "text": "（手順3を入力してください）",
+      "isPlaceholder": true
+    }
+  ],
+  "artists": [],
+  "currentArtistId": null
+}
