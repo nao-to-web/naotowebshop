@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NAO_to Web shop［管理画面］</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+.admin-banner { background: #1a1a1a; color: #fff; text-align: center; padding: 8px; font-size: 12px; letter-spacing: 0.05em; }
+header { background: #fff; border-bottom: 0.5px solid #e0e0dc; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.site-title { font-size: 24px; font-weight: 400; font-family: 'Pacifico', cursive; letter-spacing: 0.02em; }
+.logo-wrap { position: relative; cursor: pointer; display: flex; align-items: center; }
+.logo-img { height: 40px; max-width: 120px; object-fit: contain; border-radius: 6px; display: none; }
+.logo-placeholder { height: 36px; width: 36px; border: 0.5px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #bbb; background: #f5f5f3; }
+.logo-overlay { position: absolute; inset: 0; border-radius: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; }
+.logo-wrap:hover .logo-overlay { opacity: 1; }
+.logo-overlay span { color: #fff; font-size: 10px; font-weight: 500; white-space: nowrap; }
+.save-load-area { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.save-btn { background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 13px; cursor: pointer; }
+.save-btn:hover { background: #333; }
+.save-btn:disabled { background: #999; cursor: not-allowed; }
+.load-btn { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #555; cursor: pointer; }
+.load-btn:hover { background: #f5f5f3; }
+.status-msg { font-size: 12px; color: #888; }
+.status-msg.ok { color: #27ae60; }
+.status-msg.err { color: #c0392b; }
+.token-banner { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; margin: 1rem; padding: 1rem 1.2rem; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
+.token-banner b { font-size: 15px; }
+.token-input-row { display: flex; gap: 8px; align-items: center; }
+.token-input { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 8px 10px; font-size: 14px; font-family: monospace; }
+.token-set-btn { background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.token-set-btn:hover { background: #333; }
+.token-ok { background: #e8f5e9; border-color: #a5d6a7; }
+.cover-section { position: relative; width: 100%; height: 340px; background: #ddd; overflow: hidden; }
+.cover-section.has-img { background: #111; }
+.cover-img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.85; }
+.cover-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #aaa; font-size: 14px; cursor: pointer; background: #ececea; }
+.cover-placeholder .big-icon { font-size: 40px; }
+.cover-edit-btn { position: absolute; bottom: 14px; right: 14px; background: rgba(255,255,255,0.85); border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #333; cursor: pointer; backdrop-filter: blur(4px); }
+.concept-section { background: #fff; border-bottom: 0.5px solid #e0e0dc; }
+.concept-inner { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem; display: flex; gap: 2rem; align-items: flex-start; }
+.concept-text { flex: 1; }
+.concept-title { font-size: 22px; font-weight: 500; margin-bottom: 0.75rem; line-height: 1.4; }
+.concept-body { font-size: 15px; color: #555; line-height: 1.8; white-space: pre-wrap; }
+.concept-edit-btn { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #666; cursor: pointer; flex-shrink: 0; margin-top: 4px; }
+main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
+.tabs { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; padding: 4px 0; }
+.tab { background: #fff; border: none; border-radius: 14px; padding: 8px 18px 8px 10px; font-size: 13px; font-weight: 500; cursor: pointer; color: #555; display: flex; align-items: center; gap: 8px; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05); transition: box-shadow 0.18s, transform 0.15s, background 0.15s, color 0.15s; }
+.tab:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.12); transform: translateY(-1px); color: #1a1a1a; }
+.tab.active { background: #1a1a1a; color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.22); transform: translateY(-1px); }
+.tab .tab-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; overflow: hidden; flex-shrink: 0; }
+.tab.active .tab-avatar { background: rgba(255,255,255,0.18); color: #fff; }
+.tab:not(.active) .tab-avatar { background: linear-gradient(135deg, #e8f0fb, #d0e2f7); color: #2a6cb0; }
+.tab .tab-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.add-tab { background: transparent; border: 1.5px dashed #d0d0cc; border-radius: 14px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: #aaa; transition: border-color 0.15s, color 0.15s, background 0.15s; }
+.add-tab:hover { background: #fff; border-color: #999; color: #555; }
+.hero { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; display: flex; gap: 1.5rem; align-items: center; border: 0.5px solid #e0e0dc; }
+.avatar-wrap { position: relative; flex-shrink: 0; cursor: pointer; }
+.avatar { width: 80px; height: 80px; border-radius: 50%; background: #dce8f8; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 500; color: #2a6cb0; overflow: hidden; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-overlay { position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
+.avatar-wrap:hover .avatar-overlay { opacity: 1; }
+.avatar-overlay span { color: #fff; font-size: 11px; font-weight: 500; }
+.artist-info { flex: 1; }
+.artist-name { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+.artist-genre { font-size: 13px; color: #888; margin-bottom: 6px; }
+.artist-desc { font-size: 14px; color: #555; line-height: 1.7; }
+.artist-sns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.sns-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #555; background: #f5f5f3; border: 0.5px solid #e0e0dc; border-radius: 999px; padding: 4px 12px; text-decoration: none; }
+.hero-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.edit-btn { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 12px; font-size: 13px; color: #666; cursor: pointer; }
+.delete-artist-btn { background: transparent; border: 0.5px solid #f5c1c1; border-radius: 8px; padding: 6px 12px; font-size: 13px; color: #c0392b; cursor: pointer; }
+.section-title { font-size: 15px; font-weight: 500; margin-bottom: 1rem; color: #444; }
+.goods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.goods-card { background: #fff; border: 0.5px solid #e0e0dc; border-radius: 12px; overflow: hidden; }
+.goods-img { width: 100%; aspect-ratio: 1; background: #f5f5f3; display: flex; align-items: center; justify-content: center; font-size: 44px; border-bottom: 0.5px solid #e0e0dc; overflow: hidden; }
+.goods-img img { width: 100%; height: 100%; object-fit: cover; }
+.goods-body { padding: 10px 12px; }
+.goods-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.goods-price { font-size: 13px; color: #888; margin-bottom: 8px; }
+.goods-footer { display: flex; gap: 6px; }
+.del-btn { background: transparent; border: 0.5px solid #f5c1c1; border-radius: 8px; padding: 5px 8px; font-size: 12px; color: #c0392b; cursor: pointer; width: 100%; }
+.add-card { background: #f5f5f3; border: 0.5px dashed #ccc; border-radius: 12px; aspect-ratio: 1.1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; color: #888; font-size: 13px; }
+.plus-icon { width: 30px; height: 30px; border-radius: 50%; border: 0.5px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #888; }
+.img-upload-area { border: 0.5px dashed #ccc; border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer; color: #888; font-size: 13px; background: #f5f5f3; position: relative; margin-top: 4px; }
+.img-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.img-preview { width: 100%; max-height: 140px; object-fit: contain; border-radius: 6px; margin-top: 8px; display: none; }
+.empty-state { text-align: center; padding: 3rem 1rem; color: #aaa; font-size: 14px; }
+.empty-state .big { font-size: 40px; margin-bottom: 1rem; }
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: #fff; border-radius: 12px; border: 0.5px solid #e0e0dc; padding: 1.5rem; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
+.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
+.modal label { font-size: 13px; color: #666; display: block; margin-bottom: 4px; margin-top: 12px; }
+.modal input[type=text], .modal input[type=number], .modal textarea { width: 100%; border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 10px; font-size: 14px; background: #fff; color: #1a1a1a; resize: vertical; font-family: inherit; }
+.modal input:focus, .modal textarea:focus { outline: none; border-color: #888; }
+.modal-actions { display: flex; gap: 8px; margin-top: 1.25rem; justify-content: flex-end; }
+.btn-primary { background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; }
+.btn-cancel { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 16px; font-size: 14px; color: #666; cursor: pointer; }
+.order-guide-section { background: #fff; border-top: 0.5px solid #e0e0dc; margin-top: 2rem; }
+.order-guide-inner { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+.order-guide-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.order-guide-title { font-size: 18px; font-weight: 500; }
+.order-guide-edit-btn { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #666; cursor: pointer; }
+.order-steps { display: flex; flex-direction: column; gap: 12px; }
+.order-step { display: flex; gap: 14px; align-items: flex-start; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-text { font-size: 15px; color: #444; line-height: 1.7; flex: 1; white-space: pre-wrap; }
+.step-placeholder { color: #bbb; font-style: italic; }
+footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; border-top: 0.5px solid #e0e0dc; margin-top: 0; }
+@media (max-width: 500px) {
+  .hero { flex-direction: column; text-align: center; }
+  .hero-actions { justify-content: center; }
+  header { padding: 1rem; }
+  .concept-inner { flex-direction: column; }
+  .cover-section { height: 220px; }
+}
+</style>
+</head>
+<body>
+<div class="admin-banner">🔧 管理画面 — このページはお客様には共有しないでください</div>
+<header>
+  <div class="header-left">
+    <div class="logo-wrap" onclick="document.getElementById('logo-file-input').click()">
+      <div class="logo-placeholder" id="logo-placeholder">🖼</div>
+      <img class="logo-img" id="logo-img" alt="ロゴ" />
+      <div class="logo-overlay"><span>変更</span></div>
+    </div>
+    <span class="site-title" id="site-title-text">NAO_to Web shop</span>
+  </div>
+  <input type="file" accept="image/*" id="logo-file-input" style="display:none" onchange="onLogoFile(event)" />
+  <div class="save-load-area">
+    <span class="status-msg" id="status-msg"></span>
+    <button class="load-btn" onclick="loadFromGitHub()">📂 読み込む</button>
+    <button class="save-btn" id="save-btn" onclick="saveToGitHub()">💾 GitHubに保存</button>
+  </div>
+</header>
+
+<!-- ★ トークン入力欄（黄色いバナー） -->
+<div class="token-banner" id="token-banner">
+  <b>🔑 最初にGitHubトークンを入力してください</b>
+  <div style="font-size:13px; color:#666;">入力したトークンはこのページにのみ保存され、外部には送信されません（GitHubへの保存・読み込みにのみ使用されます）</div>
+  <div class="token-input-row">
+    <input class="token-input" type="password" id="token-input" placeholder="github_pat_..." />
+    <button class="token-set-btn" onclick="setToken()">設定する</button>
+  </div>
+</div>
+
+<div class="cover-section" id="cover-section">
+  <div class="cover-placeholder" id="cover-placeholder" onclick="document.getElementById('cover-file-input').click()">
+    <div class="big-icon">🖼️</div>
+    <div>クリックしてカバー画像を追加</div>
+  </div>
+  <img class="cover-img" id="cover-img" style="display:none" alt="カバー画像" />
+  <button class="cover-edit-btn" onclick="document.getElementById('cover-file-input').click()">画像を変更</button>
+  <input type="file" accept="image/*" id="cover-file-input" style="display:none" onchange="onCoverFile(event)" />
+</div>
+<div class="concept-section">
+  <div class="concept-inner">
+    <div class="concept-text">
+      <div class="concept-title" id="concept-title">ショップのタイトル</div>
+      <div class="concept-body" id="concept-body">ここにショップのコンセプトや紹介文を入力してください。</div>
+    </div>
+    <button class="concept-edit-btn" onclick="openConceptModal()">編集</button>
+  </div>
+</div>
+<main>
+  <div class="tabs" id="tabs"></div>
+  <div id="artist-view"></div>
+</main>
+<div class="order-guide-section">
+  <div class="order-guide-inner">
+    <div class="order-guide-header">
+      <div class="order-guide-title">📋 注文の手順</div>
+      <button class="order-guide-edit-btn" onclick="openOrderGuideModal()">編集</button>
+    </div>
+    <div class="order-steps">
+      <div class="order-step"><div class="step-num">1</div><div class="step-text step-placeholder" id="step-1">（手順1を入力してください）</div></div>
+      <div class="order-step"><div class="step-num">2</div><div class="step-text step-placeholder" id="step-2">（手順2を入力してください）</div></div>
+      <div class="order-step"><div class="step-num">3</div><div class="step-text step-placeholder" id="step-3">（手順3を入力してください）</div></div>
+    </div>
+  </div>
+</div>
+<footer>
+  &copy; <span id="footer-year"></span> <span id="footer-name">NAO_to Web shop</span>. All rights reserved.
+</footer>
+
+<!-- モーダル類 -->
+<div class="modal-bg" id="concept-modal">
+  <div class="modal">
+    <h3>ページのコンセプトを編集</h3>
+    <label>サイト名</label><input type="text" id="input-site-title" />
+    <label>コンセプトタイトル</label><input type="text" id="input-concept-title" />
+    <label>紹介文</label><textarea id="input-concept-body" rows="5"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('concept-modal')">キャンセル</button>
+      <button class="btn-primary" onclick="saveConceptModal()">保存</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="artist-modal">
+  <div class="modal">
+    <h3 id="artist-modal-title">アーティストを追加</h3>
+    <label>アイコン画像</label>
+    <div class="img-upload-area">
+      <input type="file" accept="image/*" id="avatar-file-input" onchange="onAvatarFile(event)" />
+      <span id="avatar-upload-label">タップして画像を選択</span>
+      <img id="avatar-preview" class="img-preview" alt="プレビュー" />
+    </div>
+    <label>名前</label><input type="text" id="input-name" placeholder="例：山田 太郎" />
+    <label>ジャンル・肩書き</label><input type="text" id="input-genre" placeholder="例：イラストレーター" />
+    <label>紹介文</label><textarea id="input-desc" rows="3"></textarea>
+    <label>X (Twitter) URL</label><input type="text" id="input-sns-x" placeholder="https://x.com/username" />
+    <label>Instagram URL</label><input type="text" id="input-sns-ig" placeholder="https://instagram.com/username" />
+    <label>その他SNS URL</label><input type="text" id="input-sns-other" placeholder="https://example.com" />
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('artist-modal')">キャンセル</button>
+      <button class="btn-primary" onclick="saveArtist()">保存</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <h3>グッズを追加</h3>
+    <label>グッズ画像</label>
+    <div class="img-upload-area">
+      <input type="file" accept="image/*" id="goods-file-input" onchange="onGoodsFile(event)" />
+      <span id="goods-upload-label">タップして画像を選択</span>
+      <img id="goods-img-preview" class="img-preview" alt="プレビュー" />
+    </div>
+    <label>グッズ名</label><input type="text" id="goods-name" placeholder="例：アクリルスタンド" />
+    <label>価格（円）</label><input type="number" id="goods-price" placeholder="例：1500" />
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('add-modal')">キャンセル</button>
+      <button class="btn-primary" onclick="addGoods()">追加</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="order-guide-modal">
+  <div class="modal">
+    <h3>注文の手順を編集</h3>
+    <label>手順 1</label><textarea id="input-step-1" rows="3"></textarea>
+    <label>手順 2</label><textarea id="input-step-2" rows="3"></textarea>
+    <label>手順 3</label><textarea id="input-step-3" rows="3"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('order-guide-modal')">キャンセル</button>
+      <button class="btn-primary" onclick="saveOrderGuide()">保存</button>
+    </div>
+  </div>
+</div>
+<input type="file" accept="image/*" id="avatar-direct-input" style="display:none" onchange="onAvatarDirectFile(event)" />
+
+<script>
+const GITHUB_OWNER = 'nao-to-web';
+const GITHUB_REPO  = 'naotowebshop';
+const GITHUB_FILE  = 'shop_data.json';
+let GITHUB_TOKEN   = '';
+
+document.getElementById('footer-year').textContent = new Date().getFullYear();
+const MAX_ARTISTS = 5;
+let artists = [];
+let currentArtistId = null;
+let artistModalMode = 'add';
+let pendingAvatarDataUrl = null;
+let pendingGoodsImgDataUrl = null;
+
+function genId() { return '_' + Math.random().toString(36).slice(2, 9); }
+function getArtist() { return artists.find(a => a.id === currentArtistId); }
+function readFileAsDataUrl(file) {
+  return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+}
+function setStatus(msg, type='') {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg; el.className = 'status-msg ' + type;
+}
+
+/* ===== トークン設定 ===== */
+function setToken() {
+  const val = document.getElementById('token-input').value.trim();
+  if (!val) { alert('トークンを入力してください'); return; }
+  GITHUB_TOKEN = val;
+  const banner = document.getElementById('token-banner');
+  banner.classList.add('token-ok');
+  banner.innerHTML = '<b>✅ トークン設定済み — 読み込み・保存が使えます</b>';
+  loadFromGitHub();
+}
+
+/* ===== GitHub API ===== */
+async function saveToGitHub() {
+  if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; setStatus('保存中...', '');
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(collectData(), null, 2))));
+  try {
+    let sha = null;
+    const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (getRes.ok) { sha = (await getRes.json()).sha; }
+    const body = { message: 'Update shop data', content };
+    if (sha) body.sha = sha;
+    const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (putRes.ok) { setStatus('✓ 保存しました', 'ok'); }
+    else { const e = await putRes.json(); setStatus('保存失敗: ' + (e.message || ''), 'err'); }
+  } catch(e) { setStatus('通信エラー', 'err'); }
+  btn.disabled = false;
+}
+
+async function loadFromGitHub() {
+  if (!GITHUB_TOKEN) return;
+  setStatus('読み込み中...', '');
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) { setStatus('データなし（新規）', ''); return; }
+    const data = JSON.parse(decodeURIComponent(escape(atob((await res.json()).content))));
+    applyData(data);
+    setStatus('✓ 読み込みました', 'ok');
+  } catch(e) { setStatus('読み込みエラー', 'err'); }
+}
+
+function collectData() {
+  return {
+    siteTitle: document.getElementById('site-title-text').textContent,
+    conceptTitle: document.getElementById('concept-title').textContent,
+    conceptBody: document.getElementById('concept-body').textContent,
+    logoImg: document.getElementById('logo-img').style.display !== 'none' ? document.getElementById('logo-img').src : '',
+    coverImg: document.getElementById('cover-img').style.display !== 'none' ? document.getElementById('cover-img').src : '',
+    steps: [1,2,3].map(n => ({ text: document.getElementById(`step-${n}`).textContent, isPlaceholder: document.getElementById(`step-${n}`).classList.contains('step-placeholder') })),
+    artists, currentArtistId
+  };
+}
+
+function applyData(data) {
+  if (data.siteTitle) { document.getElementById('site-title-text').textContent = data.siteTitle; document.getElementById('footer-name').textContent = data.siteTitle; }
+  if (data.conceptTitle) document.getElementById('concept-title').textContent = data.conceptTitle;
+  if (data.conceptBody !== undefined) document.getElementById('concept-body').textContent = data.conceptBody;
+  if (data.logoImg) { const img = document.getElementById('logo-img'); img.src = data.logoImg; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
+  if (data.coverImg) { const img = document.getElementById('cover-img'); img.src = data.coverImg; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
+  if (data.steps) { data.steps.forEach((s, i) => { const el = document.getElementById(`step-${i+1}`); el.textContent = s.text; if (s.isPlaceholder) el.classList.add('step-placeholder'); else el.classList.remove('step-placeholder'); }); }
+  if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
+  render();
+}
+
+/* ===== 画像処理 ===== */
+async function onLogoFile(e) { const f = e.target.files[0]; if (!f) return; const d = await readFileAsDataUrl(f); const img = document.getElementById('logo-img'); img.src = d; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
+async function onCoverFile(e) { const f = e.target.files[0]; if (!f) return; const d = await readFileAsDataUrl(f); const img = document.getElementById('cover-img'); img.src = d; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
+async function onAvatarFile(e) { const f = e.target.files[0]; if (!f) return; pendingAvatarDataUrl = await readFileAsDataUrl(f); const p = document.getElementById('avatar-preview'); p.src = pendingAvatarDataUrl; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = f.name; }
+async function onAvatarDirectFile(e) { const f = e.target.files[0]; if (!f) return; getArtist().avatarImg = await readFileAsDataUrl(f); render(); }
+async function onGoodsFile(e) { const f = e.target.files[0]; if (!f) return; pendingGoodsImgDataUrl = await readFileAsDataUrl(f); const p = document.getElementById('goods-img-preview'); p.src = pendingGoodsImgDataUrl; p.style.display = 'block'; document.getElementById('goods-upload-label').textContent = f.name; }
+
+/* ===== タブ・表示 ===== */
+function renderTabs() {
+  const tabs = document.getElementById('tabs'); tabs.innerHTML = '';
+  artists.forEach(a => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (a.id === currentArtistId ? ' active' : '');
+    const av = a.avatarImg ? `<span class="tab-avatar"><img src="${a.avatarImg}" /></span>` : `<span class="tab-avatar">${a.name.charAt(0).toUpperCase()}</span>`;
+    tab.innerHTML = av + a.name;
+    tab.onclick = () => { currentArtistId = a.id; render(); };
+    tabs.appendChild(tab);
+  });
+  if (artists.length < MAX_ARTISTS) {
+    const btn = document.createElement('button'); btn.className = 'add-tab'; btn.textContent = '+ アーティストを追加'; btn.onclick = openAddArtistModal; tabs.appendChild(btn);
+  }
+}
+function renderArtistView() {
+  const view = document.getElementById('artist-view'); const a = getArtist();
+  if (!a) { view.innerHTML = `<div class="empty-state"><div class="big">🎨</div><div>「+ アーティストを追加」から始めましょう</div></div>`; return; }
+  const av = a.avatarImg ? `<img src="${a.avatarImg}" alt="${a.name}" />` : a.name.charAt(0).toUpperCase();
+  view.innerHTML = `
+    <div class="hero">
+      <div class="avatar-wrap" onclick="document.getElementById('avatar-direct-input').click()">
+        <div class="avatar">${av}</div>
+        <div class="avatar-overlay"><span>変更</span></div>
+      </div>
+      <div class="artist-info">
+        <div class="artist-name">${a.name}</div>
+        <div class="artist-genre">${a.genre}</div>
+        <div class="artist-desc">${a.desc}</div>
+        <div class="artist-sns">
+          ${a.snsX ? `<a class="sns-link" href="${a.snsX}" target="_blank"><span>𝕏</span> X</a>` : ''}
+          ${a.snsIg ? `<a class="sns-link" href="${a.snsIg}" target="_blank"><span>📷</span> Instagram</a>` : ''}
+          ${a.snsOther ? `<a class="sns-link" href="${a.snsOther}" target="_blank"><span>🔗</span> リンク</a>` : ''}
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button class="edit-btn" onclick="openEditArtistModal()">編集</button>
+        <button class="delete-artist-btn" onclick="deleteArtist()">削除</button>
+      </div>
+    </div>
+    <div class="section-title">グッズ一覧</div>
+    <div class="goods-grid" id="goods-grid"></div>`;
+  renderGoods();
+}
+function renderGoods() {
+  const grid = document.getElementById('goods-grid'); if (!grid) return;
+  const a = getArtist(); grid.innerHTML = '';
+  (a.goods || []).forEach((g, i) => {
+    const card = document.createElement('div'); card.className = 'goods-card';
+    const img = g.imgDataUrl ? `<img src="${g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
+    card.innerHTML = `<div class="goods-img">${img}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div><div class="goods-footer"><button class="del-btn" onclick="deleteGoods(${i})">削除</button></div></div>`;
+    grid.appendChild(card);
+  });
+  const add = document.createElement('div'); add.className = 'add-card';
+  add.innerHTML = `<div class="plus-icon">+</div><span>グッズを追加</span>`; add.onclick = openAddModal; grid.appendChild(add);
+}
+function render() { renderTabs(); renderArtistView(); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ===== アーティスト ===== */
+function openAddArtistModal() {
+  artistModalMode = 'add'; pendingAvatarDataUrl = null;
+  document.getElementById('artist-modal-title').textContent = 'アーティストを追加';
+  ['input-name','input-genre','input-desc','input-sns-x','input-sns-ig','input-sns-other'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('avatar-preview').style.display = 'none';
+  document.getElementById('avatar-upload-label').textContent = 'タップして画像を選択';
+  document.getElementById('artist-modal').classList.add('open');
+}
+function openEditArtistModal() {
+  artistModalMode = 'edit'; const a = getArtist(); pendingAvatarDataUrl = a.avatarImg || null;
+  document.getElementById('artist-modal-title').textContent = 'アーティスト情報を編集';
+  document.getElementById('input-name').value = a.name;
+  document.getElementById('input-genre').value = a.genre;
+  document.getElementById('input-desc').value = a.desc;
+  document.getElementById('input-sns-x').value = a.snsX || '';
+  document.getElementById('input-sns-ig').value = a.snsIg || '';
+  document.getElementById('input-sns-other').value = a.snsOther || '';
+  const p = document.getElementById('avatar-preview');
+  if (a.avatarImg) { p.src = a.avatarImg; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = '画像設定済み'; }
+  else { p.style.display = 'none'; document.getElementById('avatar-upload-label').textContent = 'タップして画像を選択'; }
+  document.getElementById('artist-modal').classList.add('open');
+}
+function saveArtist() {
+  const name = document.getElementById('input-name').value.trim() || '名無しアーティスト';
+  const genre = document.getElementById('input-genre').value.trim() || 'ジャンル未設定';
+  const desc = document.getElementById('input-desc').value.trim() || '紹介文未設定';
+  const snsX = document.getElementById('input-sns-x').value.trim();
+  const snsIg = document.getElementById('input-sns-ig').value.trim();
+  const snsOther = document.getElementById('input-sns-other').value.trim();
+  if (artistModalMode === 'add') {
+    const a = { id: genId(), name, genre, desc, snsX, snsIg, snsOther, avatarImg: pendingAvatarDataUrl, goods: [] };
+    artists.push(a); currentArtistId = a.id;
+  } else {
+    const a = getArtist(); a.name = name; a.genre = genre; a.desc = desc; a.snsX = snsX; a.snsIg = snsIg; a.snsOther = snsOther;
+    if (pendingAvatarDataUrl) a.avatarImg = pendingAvatarDataUrl;
+  }
+  closeModal('artist-modal'); render();
+}
+function deleteArtist() {
+  if (!confirm(`「${getArtist().name}」を削除しますか？`)) return;
+  artists = artists.filter(a => a.id !== currentArtistId);
+  currentArtistId = artists.length > 0 ? artists[0].id : null; render();
+}
+
+/* ===== グッズ ===== */
+function openAddModal() {
+  pendingGoodsImgDataUrl = null;
+  document.getElementById('goods-name').value = ''; document.getElementById('goods-price').value = '';
+  document.getElementById('goods-img-preview').style.display = 'none';
+  document.getElementById('goods-upload-label').textContent = 'タップして画像を選択';
+  document.getElementById('add-modal').classList.add('open');
+}
+function addGoods() {
+  const name = document.getElementById('goods-name').value.trim() || '新しいグッズ';
+  const raw = document.getElementById('goods-price').value;
+  const price = raw ? parseInt(raw).toLocaleString('ja-JP') + '円' : '価格未定';
+  getArtist().goods.push({ name, price, imgDataUrl: pendingGoodsImgDataUrl });
+  closeModal('add-modal'); renderGoods();
+}
+function deleteGoods(i) { getArtist().goods.splice(i, 1); renderGoods(); }
+
+/* ===== コンセプト ===== */
+function openConceptModal() {
+  document.getElementById('input-site-title').value = document.getElementById('site-title-text').textContent;
+  document.getElementById('input-concept-title').value = document.getElementById('concept-title').textContent;
+  document.getElementById('input-concept-body').value = document.getElementById('concept-body').textContent;
+  document.getElementById('concept-modal').classList.add('open');
+}
+function saveConceptModal() {
+  const t = document.getElementById('input-site-title').value.trim() || 'NAO_to Web shop';
+  document.getElementById('site-title-text').textContent = t;
+  document.getElementById('footer-name').textContent = t;
+  document.getElementById('concept-title').textContent = document.getElementById('input-concept-title').value.trim() || 'ショップのタイトル';
+  document.getElementById('concept-body').textContent = document.getElementById('input-concept-body').value.trim();
+  closeModal('concept-modal');
+}
+
+/* ===== 注文手順 ===== */
+function openOrderGuideModal() {
+  [1,2,3].forEach(n => {
+    const el = document.getElementById(`step-${n}`);
+    document.getElementById(`input-step-${n}`).value = el.classList.contains('step-placeholder') ? '' : el.textContent;
+  });
+  document.getElementById('order-guide-modal').classList.add('open');
+}
+function saveOrderGuide() {
+  [1,2,3].forEach(n => {
+    const val = document.getElementById(`input-step-${n}`).value.trim();
+    const el = document.getElementById(`step-${n}`);
+    if (val) { el.textContent = val; el.classList.remove('step-placeholder'); }
+    else { el.textContent = `（手順${n}を入力してください）`; el.classList.add('step-placeholder'); }
+  });
+  closeModal('order-guide-modal');
+}
+
+render();
+</script>
+</body>
+</html>
