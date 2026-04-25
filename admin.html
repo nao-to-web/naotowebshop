@@ -338,7 +338,10 @@ async function loadFromGitHub() {
       data = JSON.parse(text);
     } else if (json.download_url) {
       // contentが空の場合はdownload_urlから直接取得
-      const dlRes = await fetch(json.download_url);
+      alert('download_url: ' + json.download_url);
+      const dlRes = await fetch(json.download_url, {
+        headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+      });
       data = await dlRes.json();
     } else {
       setStatus('データなし（新規）', ''); return;
