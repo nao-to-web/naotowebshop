@@ -80,7 +80,9 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .goods-img img { width: 100%; height: 100%; object-fit: cover; }
 .goods-body { padding: 10px 12px; }
 .goods-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
-.goods-price { font-size: 13px; color: #888; margin-bottom: 8px; }
+.goods-price { font-size: 13px; color: #888; margin-bottom: 4px; }
+.goods-desc { font-size: 12px; color: #aaa; line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; }
+.goods-desc { font-size: 12px; color: #777; line-height: 1.6; margin-bottom: 8px; white-space: pre-wrap; }
 .goods-footer { display: flex; gap: 6px; }
 .del-btn { background: transparent; border: 0.5px solid #f5c1c1; border-radius: 8px; padding: 5px 8px; font-size: 12px; color: #c0392b; cursor: pointer; width: 100%; }
 .add-card { background: #f5f5f3; border: 0.5px dashed #ccc; border-radius: 12px; aspect-ratio: 1.1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; color: #888; font-size: 13px; }
@@ -138,17 +140,14 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     <button class="save-btn" id="save-btn" onclick="saveToGitHub()">💾 GitHubに保存</button>
   </div>
 </header>
-
-<!-- ★ トークン入力欄（黄色いバナー） -->
 <div class="token-banner" id="token-banner">
   <b>🔑 最初にGitHubトークンを入力してください</b>
-  <div style="font-size:13px; color:#666;">入力したトークンはこのページにのみ保存され、外部には送信されません（GitHubへの保存・読み込みにのみ使用されます）</div>
+  <div style="font-size:13px; color:#666;">入力したトークンはこのページにのみ保存され、外部には送信されません</div>
   <div class="token-input-row">
     <input class="token-input" type="password" id="token-input" placeholder="github_pat_..." />
     <button class="token-set-btn" onclick="setToken()">設定する</button>
   </div>
 </div>
-
 <div class="cover-section" id="cover-section">
   <div class="cover-placeholder" id="cover-placeholder" onclick="document.getElementById('cover-file-input').click()">
     <div class="big-icon">🖼️</div>
@@ -187,8 +186,6 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
 <footer>
   &copy; <span id="footer-year"></span> <span id="footer-name">NAO_to Web shop</span>. All rights reserved.
 </footer>
-
-<!-- モーダル類 -->
 <div class="modal-bg" id="concept-modal">
   <div class="modal">
     <h3>ページのコンセプトを編集</h3>
@@ -233,6 +230,7 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     </div>
     <label>グッズ名</label><input type="text" id="goods-name" placeholder="例：アクリルスタンド" />
     <label>価格（円）</label><input type="number" id="goods-price" placeholder="例：1500" />
+    <label>説明文（任意）</label><textarea id="goods-desc" rows="3" placeholder="例：A4サイズ、両面印刷、高品質な仕上がりです"></textarea>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('add-modal')">キャンセル</button>
       <button class="btn-primary" onclick="addGoods()">追加</button>
@@ -252,13 +250,11 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
   </div>
 </div>
 <input type="file" accept="image/*" id="avatar-direct-input" style="display:none" onchange="onAvatarDirectFile(event)" />
-
 <script>
 const GITHUB_OWNER = 'nao-to-web';
 const GITHUB_REPO  = 'naotowebshop';
 const GITHUB_FILE  = 'shop_data.json';
 let GITHUB_TOKEN   = '';
-
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 const MAX_ARTISTS = 5;
 let artists = [];
@@ -266,18 +262,10 @@ let currentArtistId = null;
 let artistModalMode = 'add';
 let pendingAvatarDataUrl = null;
 let pendingGoodsImgDataUrl = null;
-
 function genId() { return '_' + Math.random().toString(36).slice(2, 9); }
 function getArtist() { return artists.find(a => a.id === currentArtistId); }
-function readFileAsDataUrl(file) {
-  return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
-}
-function setStatus(msg, type='') {
-  const el = document.getElementById('status-msg');
-  el.textContent = msg; el.className = 'status-msg ' + type;
-}
-
-/* ===== トークン設定 ===== */
+function readFileAsDataUrl(file) { return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); }); }
+function setStatus(msg, type='') { const el = document.getElementById('status-msg'); el.textContent = msg; el.className = 'status-msg ' + type; }
 function setToken() {
   const val = document.getElementById('token-input').value.trim();
   if (!val) { alert('トークンを入力してください'); return; }
@@ -287,15 +275,12 @@ function setToken() {
   banner.innerHTML = '<b>✅ トークン設定済み — 読み込み・保存が使えます</b>';
   loadFromGitHub();
 }
-
-/* ===== GitHub API ===== */
 async function saveToGitHub() {
   if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
   const btn = document.getElementById('save-btn');
   btn.disabled = true; setStatus('保存中...', '');
   try {
     const json = JSON.stringify(collectData(), null, 2);
-    // TextEncoderで確実にUTF-8バイト列に変換してからbase64エンコード
     const bytes = new TextEncoder().encode(json);
     let binary = '';
     bytes.forEach(b => binary += String.fromCharCode(b));
@@ -317,7 +302,6 @@ async function saveToGitHub() {
   } catch(e) { setStatus('通信エラー: ' + e.message, 'err'); }
   btn.disabled = false;
 }
-
 async function loadFromGitHub() {
   if (!GITHUB_TOKEN) return;
   setStatus('読み込み中...', '');
@@ -329,7 +313,6 @@ async function loadFromGitHub() {
     const json = await res.json();
     let data;
     if (json.content && json.content.trim().length > 0) {
-      // contentがある場合はbase64デコード
       const cleaned = json.content.replace(/\s/g, '');
       const binary = atob(cleaned);
       const bytes = new Uint8Array(binary.length);
@@ -337,24 +320,16 @@ async function loadFromGitHub() {
       const text = new TextDecoder('utf-8').decode(bytes);
       data = JSON.parse(text);
     } else {
-      // contentが空の場合はraw形式で再取得
       const rawRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.raw+json'
-        }
+        headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.raw+json' }
       });
       const text = await rawRes.text();
       data = JSON.parse(text);
     }
     applyData(data);
     setStatus('✓ 読み込みました', 'ok');
-  } catch(e) {
-    console.error('読み込みエラー:', e);
-    setStatus('読み込みエラー: ' + e.message, 'err');
-  }
+  } catch(e) { setStatus('読み込みエラー: ' + e.message, 'err'); }
 }
-
 function collectData() {
   return {
     siteTitle: document.getElementById('site-title-text').textContent,
@@ -366,7 +341,6 @@ function collectData() {
     artists, currentArtistId
   };
 }
-
 function applyData(data) {
   if (data.siteTitle) { document.getElementById('site-title-text').textContent = data.siteTitle; document.getElementById('footer-name').textContent = data.siteTitle; }
   if (data.conceptTitle) document.getElementById('concept-title').textContent = data.conceptTitle;
@@ -377,15 +351,11 @@ function applyData(data) {
   if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
   render();
 }
-
-/* ===== 画像処理 ===== */
 async function onLogoFile(e) { const f = e.target.files[0]; if (!f) return; const d = await readFileAsDataUrl(f); const img = document.getElementById('logo-img'); img.src = d; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
 async function onCoverFile(e) { const f = e.target.files[0]; if (!f) return; const d = await readFileAsDataUrl(f); const img = document.getElementById('cover-img'); img.src = d; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
 async function onAvatarFile(e) { const f = e.target.files[0]; if (!f) return; pendingAvatarDataUrl = await readFileAsDataUrl(f); const p = document.getElementById('avatar-preview'); p.src = pendingAvatarDataUrl; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = f.name; }
 async function onAvatarDirectFile(e) { const f = e.target.files[0]; if (!f) return; getArtist().avatarImg = await readFileAsDataUrl(f); render(); }
 async function onGoodsFile(e) { const f = e.target.files[0]; if (!f) return; pendingGoodsImgDataUrl = await readFileAsDataUrl(f); const p = document.getElementById('goods-img-preview'); p.src = pendingGoodsImgDataUrl; p.style.display = 'block'; document.getElementById('goods-upload-label').textContent = f.name; }
-
-/* ===== タブ・表示 ===== */
 function renderTabs() {
   const tabs = document.getElementById('tabs'); tabs.innerHTML = '';
   artists.forEach(a => {
@@ -435,7 +405,8 @@ function renderGoods() {
   (a.goods || []).forEach((g, i) => {
     const card = document.createElement('div'); card.className = 'goods-card';
     const img = g.imgDataUrl ? `<img src="${g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
-    card.innerHTML = `<div class="goods-img">${img}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div><div class="goods-footer"><button class="del-btn" onclick="deleteGoods(${i})">削除</button></div></div>`;
+    const descHtml = g.desc ? `<div class="goods-desc">${g.desc}</div>` : '';
+    card.innerHTML = `<div class="goods-img">${img}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${descHtml}<div class="goods-footer"><button class="del-btn" onclick="deleteGoods(${i})">削除</button></div></div>`;
     grid.appendChild(card);
   });
   const add = document.createElement('div'); add.className = 'add-card';
@@ -443,8 +414,6 @@ function renderGoods() {
 }
 function render() { renderTabs(); renderArtistView(); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-/* ===== アーティスト ===== */
 function openAddArtistModal() {
   artistModalMode = 'add'; pendingAvatarDataUrl = null;
   document.getElementById('artist-modal-title').textContent = 'アーティストを追加';
@@ -488,11 +457,11 @@ function deleteArtist() {
   artists = artists.filter(a => a.id !== currentArtistId);
   currentArtistId = artists.length > 0 ? artists[0].id : null; render();
 }
-
-/* ===== グッズ ===== */
 function openAddModal() {
   pendingGoodsImgDataUrl = null;
-  document.getElementById('goods-name').value = ''; document.getElementById('goods-price').value = '';
+  document.getElementById('goods-name').value = '';
+  document.getElementById('goods-price').value = '';
+  document.getElementById('goods-desc').value = '';
   document.getElementById('goods-img-preview').style.display = 'none';
   document.getElementById('goods-upload-label').textContent = 'タップして画像を選択';
   document.getElementById('add-modal').classList.add('open');
@@ -501,12 +470,11 @@ function addGoods() {
   const name = document.getElementById('goods-name').value.trim() || '新しいグッズ';
   const raw = document.getElementById('goods-price').value;
   const price = raw ? parseInt(raw).toLocaleString('ja-JP') + '円' : '価格未定';
-  getArtist().goods.push({ name, price, imgDataUrl: pendingGoodsImgDataUrl });
+  const desc = document.getElementById('goods-desc').value.trim();
+  getArtist().goods.push({ name, price, desc, imgDataUrl: pendingGoodsImgDataUrl });
   closeModal('add-modal'); renderGoods();
 }
 function deleteGoods(i) { getArtist().goods.splice(i, 1); renderGoods(); }
-
-/* ===== コンセプト ===== */
 function openConceptModal() {
   document.getElementById('input-site-title').value = document.getElementById('site-title-text').textContent;
   document.getElementById('input-concept-title').value = document.getElementById('concept-title').textContent;
@@ -521,8 +489,6 @@ function saveConceptModal() {
   document.getElementById('concept-body').textContent = document.getElementById('input-concept-body').value.trim();
   closeModal('concept-modal');
 }
-
-/* ===== 注文手順 ===== */
 function openOrderGuideModal() {
   [1,2,3].forEach(n => {
     const el = document.getElementById(`step-${n}`);
@@ -539,7 +505,6 @@ function saveOrderGuide() {
   });
   closeModal('order-guide-modal');
 }
-
 render();
 </script>
 </body>
