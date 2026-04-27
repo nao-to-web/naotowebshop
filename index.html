@@ -476,6 +476,7 @@ async function loadFromGitHub() {
     const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
       headers: { 'Accept': 'application/vnd.github.v3+json' }
     });
+    alert('APIレスポンス: ' + res.status);
     if (!res.ok) return;
     const json = await res.json();
     let data;
