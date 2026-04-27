@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>NAO_to Web shop</title>
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
 header { background: #fff; border-bottom: 0.5px solid #e0e0dc; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
 .header-left { display: flex; align-items: center; gap: 12px; }
-.site-title { font-size: 24px; font-weight: 400; font-family: 'Pacifico', cursive; letter-spacing: 0.02em; }
+.site-title { font-size: 28px; font-weight: 700; font-family: 'Kalam', cursive; letter-spacing: 0.02em; }
 .logo-wrap { position: relative; cursor: pointer; display: flex; align-items: center; }
 .logo-img { height: 40px; max-width: 120px; object-fit: contain; border-radius: 6px; display: none; }
 .logo-placeholder { height: 36px; width: 36px; border: 0.5px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #bbb; background: #f5f5f3; }
@@ -72,6 +72,7 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .goods-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
 .goods-price { font-size: 13px; color: #888; margin-bottom: 8px; }
 .goods-footer { display: flex; gap: 6px; }
+.goods-desc { font-size: 12px; color: #777; line-height: 1.6; margin-bottom: 8px; white-space: pre-wrap; }
 .cart-btn { flex: 1; background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 5px 0; font-size: 12px; color: #1a1a1a; cursor: pointer; }
 .cart-btn:hover { background: #f5f5f3; }
 .del-btn { background: transparent; border: 0.5px solid #f5c1c1; border-radius: 8px; padding: 5px 8px; font-size: 12px; color: #c0392b; cursor: pointer; }
@@ -396,7 +397,8 @@ function renderGoods() {
   (a.goods || []).forEach((g, i) => {
     const card = document.createElement('div'); card.className = 'goods-card';
     const imgContent = g.imgDataUrl ? `<img src="${g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
-    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div><div class="goods-footer"><button class="cart-btn" onclick="addToCart('${a.id}', ${i})">カートに追加</button><button class="del-btn" onclick="deleteGoods(${i})">×</button></div></div>`;
+    const descHtml = g.desc ? `<div class="goods-desc">${g.desc}</div>` : '';
+    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${descHtml}<div class="goods-footer"><button class="cart-btn" onclick="addToCart('${a.id}', ${i})">カートに追加</button><button class="del-btn" onclick="deleteGoods(${i})">×</button></div></div>`;
     grid.appendChild(card);
   });
   const addCard = document.createElement('div'); addCard.className = 'add-card';
@@ -464,64 +466,46 @@ function addGoods() {
 }
 function deleteGoods(index) { getArtist().goods.splice(index, 1); renderGoods(); saveData(); }
 
-/* ===== データ保存・読み込み ===== */
-function collectData() {
-  return {
-    siteTitle: document.getElementById('site-title-text').textContent,
-    conceptTitle: document.getElementById('concept-title').textContent,
-    conceptBody: document.getElementById('concept-body').textContent,
-    logoImg: document.getElementById('logo-img').style.display !== 'none' ? document.getElementById('logo-img').src : '',
-    coverImg: document.getElementById('cover-img').style.display !== 'none' ? document.getElementById('cover-img').src : '',
-    steps: [1,2,3].map(n => ({
-      text: document.getElementById(`step-${n}`).textContent,
-      isPlaceholder: document.getElementById(`step-${n}`).classList.contains('step-placeholder')
-    })),
-    artists,
-    currentArtistId
-  };
+/* ===== GitHubからデータを自動読み込み ===== */
+const GITHUB_OWNER = 'nao-to-web';
+const GITHUB_REPO  = 'naotowebshop';
+const GITHUB_FILE  = 'shop_data.json';
+
+async function loadFromGitHub() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    let data;
+    if (json.content && json.content.trim().length > 0) {
+      const cleaned = json.content.replace(/\s/g, '');
+      const binary = atob(cleaned);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      data = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    } else {
+      const rawRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+        headers: { 'Accept': 'application/vnd.github.raw+json' }
+      });
+      data = JSON.parse(await rawRes.text());
+    }
+    if (data.siteTitle) { document.getElementById('site-title-text').textContent = data.siteTitle; document.getElementById('footer-name').textContent = data.siteTitle; }
+    if (data.conceptTitle) document.getElementById('concept-title').textContent = data.conceptTitle;
+    if (data.conceptBody !== undefined) document.getElementById('concept-body').textContent = data.conceptBody;
+    if (data.logoImg) { const img = document.getElementById('logo-img'); img.src = data.logoImg; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
+    if (data.coverImg) { const img = document.getElementById('cover-img'); img.src = data.coverImg; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
+    if (data.steps) { data.steps.forEach((s, i) => { const el = document.getElementById(`step-${i+1}`); el.textContent = s.text; if (s.isPlaceholder) el.classList.add('step-placeholder'); else el.classList.remove('step-placeholder'); }); }
+    if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
+    render();
+  } catch(e) { console.warn('データ読み込み失敗:', e); }
 }
-function saveData() {} // localStorage不要のため空にしておく
-function saveToFile() {
-  const data = collectData();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'naoto_webshop_data.json';
-  a.click();
-}
-function loadFromFile(event) {
-  const file = event.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.siteTitle) { document.getElementById('site-title-text').textContent = data.siteTitle; document.getElementById('footer-name').textContent = data.siteTitle; }
-      if (data.conceptTitle) document.getElementById('concept-title').textContent = data.conceptTitle;
-      if (data.conceptBody !== undefined) document.getElementById('concept-body').textContent = data.conceptBody;
-      if (data.logoImg) {
-        const img = document.getElementById('logo-img'); img.src = data.logoImg; img.style.display = 'block';
-        document.getElementById('logo-placeholder').style.display = 'none';
-      }
-      if (data.coverImg) {
-        const img = document.getElementById('cover-img'); img.src = data.coverImg; img.style.display = 'block';
-        document.getElementById('cover-placeholder').style.display = 'none';
-        document.getElementById('cover-section').classList.add('has-img');
-      }
-      if (data.steps) {
-        data.steps.forEach((s, i) => {
-          const el = document.getElementById(`step-${i+1}`);
-          el.textContent = s.text;
-          if (s.isPlaceholder) el.classList.add('step-placeholder'); else el.classList.remove('step-placeholder');
-        });
-      }
-      if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
-      render();
-      alert('読み込みました！');
-    } catch(err) { alert('読み込みに失敗しました。正しいJSONファイルを選択してください。'); }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
+
+function saveData() {}
+function collectData() {}
+function saveToFile() {}
+function loadFromFile() {}
 
 /* ===== 注文手順 ===== */
 function openOrderGuideModal() {
@@ -595,6 +579,7 @@ function copyCartText() {
     setTimeout(() => { btn.textContent = '📋 テキストをコピー'; btn.classList.remove('copied'); }, 2000);
   });
 }
+window.addEventListener('load', () => { render(); loadFromGitHub(); });
 </script>
 </body>
 </html>
