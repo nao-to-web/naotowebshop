@@ -580,7 +580,11 @@ function copyCartText() {
     setTimeout(() => { btn.textContent = '📋 テキストをコピー'; btn.classList.remove('copied'); }, 2000);
   });
 }
-window.addEventListener('load', () => { render(); loadFromGitHub(); });
+window.addEventListener('load', async () => {
+  alert('ページ読み込み開始');
+  render();
+  await loadFromGitHub();
+});
 </script>
 </body>
 </html>
