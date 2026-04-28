@@ -297,6 +297,14 @@ function setToken() {
   banner.innerHTML = '<b>✅ トークン設定済み — 読み込み・保存が使えます</b>';
   loadFromGitHub();
 }
+// グローバルエラーを捕捉して画面に表示
+window.onerror = function(msg, src, line, col, err) {
+  alert('エラー発生:\n' + msg + '\n行: ' + line);
+  return false;
+};
+window.onunhandledrejection = function(e) {
+  alert('非同期エラー:\n' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+};
 async function saveToGitHub() {
   if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
   const btn = document.getElementById('save-btn');
