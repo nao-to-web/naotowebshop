@@ -157,14 +157,9 @@ header { padding: 1rem; }
     <span class="site-title" id="site-title-text">NAO_to Web shop</span>
   </div>
   <input type="file" accept="image/*" id="logo-file-input" style="display:none" onchange="onLogoFile(event)" />
-  <div class="save-load-area">
-    <button class="load-btn" onclick="document.getElementById('load-file-input').click()">📂 読み込む</button>
-    <input type="file" accept=".json" id="load-file-input" style="display:none" onchange="loadFromFile(event)" />
-    <button class="save-btn" onclick="saveToFile()">💾 保存する</button>
-    <button class="cart-icon-btn" onclick="openCartModal()">
-      🛒 カート <span class="cart-badge" id="cart-badge">0</span>
-    </button>
-  </div>
+  <button class="cart-icon-btn" onclick="openCartModal()">
+    🛒 カート <span class="cart-badge" id="cart-badge">0</span>
+  </button>
 </header>
 <div class="cover-section" id="cover-section">
 <div class="cover-placeholder" id="cover-placeholder" onclick="document.getElementById('cover-file-input').click()">
