@@ -303,10 +303,19 @@ async function saveToGitHub() {
   btn.disabled = true; setStatus('保存中...', '');
   try {
     const json = JSON.stringify(collectData(), null, 2);
+    // チャンク分割でbase64エンコード（大きなデータでも安全）
     const bytes = new TextEncoder().encode(json);
     let binary = '';
-    bytes.forEach(b => binary += String.fromCharCode(b));
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode(...bytes.slice(i, i + chunkSize));
+    }
     const encoded = btoa(binary);
+    // データサイズチェック（GitHubの上限は約1MB）
+    if (encoded.length > 900000) {
+      setStatus('データが大きすぎます。画像を減らして再度お試しください', 'err');
+      btn.disabled = false; return;
+    }
     let sha = null;
     const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
