@@ -98,6 +98,14 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .btn-primary:hover { background: #333; }
 .btn-cancel { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 16px; font-size: 14px; color: #666; cursor: pointer; }
 .btn-cancel:hover { background: #f5f5f3; }
+.goods-detail-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #f5f5f3; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 1rem; overflow: hidden; }
+.goods-detail-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.goods-detail-name { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+.goods-detail-artist { font-size: 13px; color: #888; margin-bottom: 8px; }
+.goods-detail-price { font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 12px; }
+.goods-detail-desc { font-size: 14px; color: #555; line-height: 1.8; white-space: pre-wrap; margin-bottom: 1rem; }
+.goods-card { background: #fff; border: 0.5px solid #e0e0dc; border-radius: 12px; overflow: hidden; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
+.goods-card:hover { border-color: #bbb; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
 .cart-icon-btn { position: relative; background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 14px; cursor: pointer; color: #1a1a1a; display: flex; align-items: center; gap: 6px; }
 .cart-icon-btn:hover { background: #f5f5f3; }
 .cart-badge { background: #1a1a1a; color: #fff; border-radius: 999px; font-size: 10px; font-weight: 600; padding: 1px 6px; display: none; }
@@ -275,6 +283,21 @@ header { padding: 1rem; }
     </div>
   </div>
 </div>
+<!-- グッズ詳細モーダル -->
+<div class="modal-bg" id="goods-detail-modal">
+  <div class="modal">
+    <div class="goods-detail-img" id="detail-img"></div>
+    <div class="goods-detail-name" id="detail-name"></div>
+    <div class="goods-detail-artist" id="detail-artist"></div>
+    <div class="goods-detail-price" id="detail-price"></div>
+    <div class="goods-detail-desc" id="detail-desc"></div>
+    <div style="display:flex; gap:8px; margin-top:0.5rem;">
+      <button class="btn-cancel" onclick="closeModal('goods-detail-modal')" style="flex:1;">閉じる</button>
+      <button class="btn-primary" id="detail-cart-btn" style="flex:2;">🛒 カートに追加</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" accept="image/*" id="avatar-direct-input" style="display:none" onchange="onAvatarDirectFile(event)" />
 <div class="modal-bg" id="cart-modal">
   <div class="modal cart-modal">
@@ -411,8 +434,8 @@ function renderGoods() {
   (a.goods || []).forEach((g, i) => {
     const card = document.createElement('div'); card.className = 'goods-card';
     const imgContent = g.imgDataUrl ? `<img src="${g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
-    const descHtml = g.desc ? `<div class="goods-desc">${g.desc}</div>` : '';
-    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${descHtml}<div class="goods-footer"><button class="cart-btn" onclick="addToCart('${a.id}', ${i})">カートに追加</button></div></div>`;
+    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div></div>`;
+    card.onclick = () => openGoodsDetail(a.id, i);
     grid.appendChild(card);
   });
 }
@@ -588,6 +611,26 @@ function copyCartText() {
     const btn = document.getElementById('copy-btn'); btn.textContent = '✓ コピーしました！'; btn.classList.add('copied');
     setTimeout(() => { btn.textContent = '📋 テキストをコピー'; btn.classList.remove('copied'); }, 2000);
   });
+}
+function openGoodsDetail(artistId, goodsIndex) {
+  const a = artists.find(a => a.id === artistId); if (!a) return;
+  const g = a.goods[goodsIndex]; if (!g) return;
+  const imgEl = document.getElementById('detail-img');
+  imgEl.innerHTML = g.imgDataUrl ? `<img src="${g.imgDataUrl}" alt="${g.name}" />` : '🎁';
+  document.getElementById('detail-name').textContent = g.name;
+  document.getElementById('detail-artist').textContent = a.name;
+  document.getElementById('detail-price').textContent = `¥${g.price}`;
+  document.getElementById('detail-desc').textContent = g.desc || '';
+  const btn = document.getElementById('detail-cart-btn');
+  btn.textContent = '🛒 カートに追加';
+  btn.onclick = () => {
+    const existing = cart.find(c => c.artistId === artistId && c.goodsIndex === goodsIndex);
+    if (existing) { existing.qty++; } else { cart.push({ artistId, artistName: a.name, goodsIndex, name: g.name, price: g.price, qty: 1 }); }
+    updateCartBadge();
+    btn.textContent = '✓ 追加しました！';
+    setTimeout(() => { btn.textContent = '🛒 カートに追加'; }, 800);
+  };
+  document.getElementById('goods-detail-modal').classList.add('open');
 }
 function openShippingModal() {
   document.getElementById('shipping-name').value = '';
