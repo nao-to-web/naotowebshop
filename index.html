@@ -278,10 +278,12 @@ header { padding: 1rem; }
 <input type="file" accept="image/*" id="avatar-direct-input" style="display:none" onchange="onAvatarDirectFile(event)" />
 <div class="modal-bg" id="cart-modal">
   <div class="modal cart-modal">
-    <h3>🛒 カート</h3>
-    <div id="cart-items-list"></div>
-    <div class="modal-actions">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3>🛒 カート</h3>
       <button class="btn-cancel" onclick="closeModal('cart-modal')">閉じる</button>
+    </div>
+    <div id="cart-items-list"></div>
+    <div style="display:flex; gap:8px; margin-top:1.25rem; flex-direction:column;">
       <button class="copy-btn" id="copy-btn" onclick="copyCartText()">✋ 注文内容を確定（手渡し）</button>
       <button class="copy-btn" id="shipping-btn" onclick="openShippingModal()" style="background:#2a6cb0;">📦 郵送も依頼する</button>
     </div>
