@@ -32,14 +32,13 @@ header { background: #fff; border-bottom: 0.5px solid #e0e0dc; padding: 1rem 2re
 .token-input-row { display: flex; gap: 8px; align-items: center; }
 .token-input { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 8px 10px; font-size: 14px; font-family: monospace; }
 .token-set-btn { background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; white-space: nowrap; }
-.token-set-btn:hover { background: #333; }
 .token-ok { background: #e8f5e9; border-color: #a5d6a7; }
 .cover-section { position: relative; width: 100%; height: 340px; background: #ddd; overflow: hidden; }
 .cover-section.has-img { background: #111; }
 .cover-img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.85; }
 .cover-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #aaa; font-size: 14px; cursor: pointer; background: #ececea; }
 .cover-placeholder .big-icon { font-size: 40px; }
-.cover-edit-btn { position: absolute; bottom: 14px; right: 14px; background: rgba(255,255,255,0.85); border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #333; cursor: pointer; backdrop-filter: blur(4px); }
+.cover-edit-btn { position: absolute; bottom: 14px; right: 14px; background: rgba(255,255,255,0.85); border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #333; cursor: pointer; }
 .concept-section { background: #fff; border-bottom: 0.5px solid #e0e0dc; }
 .concept-inner { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem; display: flex; gap: 2rem; align-items: flex-start; }
 .concept-text { flex: 1; }
@@ -80,8 +79,7 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .goods-img img { width: 100%; height: 100%; object-fit: cover; }
 .goods-body { padding: 10px 12px; }
 .goods-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
-.goods-price { font-size: 13px; color: #888; margin-bottom: 4px; }
-.goods-desc { font-size: 12px; color: #aaa; line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; }
+.goods-price { font-size: 13px; color: #888; margin-bottom: 8px; }
 .goods-desc { font-size: 12px; color: #777; line-height: 1.6; margin-bottom: 8px; white-space: pre-wrap; }
 .goods-footer { display: flex; gap: 6px; }
 .del-btn { background: transparent; border: 0.5px solid #f5c1c1; border-radius: 8px; padding: 5px 8px; font-size: 12px; color: #c0392b; cursor: pointer; width: 100%; }
@@ -90,6 +88,7 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .img-upload-area { border: 0.5px dashed #ccc; border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer; color: #888; font-size: 13px; background: #f5f5f3; position: relative; margin-top: 4px; }
 .img-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 .img-preview { width: 100%; max-height: 140px; object-fit: contain; border-radius: 6px; margin-top: 8px; display: none; }
+.uploading-label { font-size: 12px; color: #2a6cb0; margin-top: 4px; display: none; }
 .empty-state { text-align: center; padding: 3rem 1rem; color: #aaa; font-size: 14px; }
 .empty-state .big { font-size: 40px; margin-bottom: 1rem; }
 .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
@@ -101,6 +100,7 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .modal input:focus, .modal textarea:focus { outline: none; border-color: #888; }
 .modal-actions { display: flex; gap: 8px; margin-top: 1.25rem; justify-content: flex-end; }
 .btn-primary { background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; }
+.btn-primary:hover { background: #333; }
 .btn-cancel { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 16px; font-size: 14px; color: #666; cursor: pointer; }
 .order-guide-section { background: #fff; border-top: 0.5px solid #e0e0dc; margin-top: 2rem; }
 .order-guide-inner { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem; }
@@ -140,14 +140,16 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     <button class="save-btn" id="save-btn" onclick="saveToGitHub()">💾 GitHubに保存</button>
   </div>
 </header>
+
 <div class="token-banner" id="token-banner">
   <b>🔑 最初にGitHubトークンを入力してください</b>
-  <div style="font-size:13px; color:#666;">入力したトークンはこのページにのみ保存され、外部には送信されません</div>
+  <div style="font-size:13px;color:#666;">トークンはこのページ内のみで使用され、外部には送信されません</div>
   <div class="token-input-row">
     <input class="token-input" type="password" id="token-input" placeholder="github_pat_..." />
     <button class="token-set-btn" onclick="setToken()">設定する</button>
   </div>
 </div>
+
 <div class="cover-section" id="cover-section">
   <div class="cover-placeholder" id="cover-placeholder" onclick="document.getElementById('cover-file-input').click()">
     <div class="big-icon">🖼️</div>
@@ -186,6 +188,8 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
 <footer>
   &copy; <span id="footer-year"></span> <span id="footer-name">NAO_to Web shop</span>. All rights reserved.
 </footer>
+
+<!-- モーダル類 -->
 <div class="modal-bg" id="concept-modal">
   <div class="modal">
     <h3>ページのコンセプトを編集</h3>
@@ -205,6 +209,7 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     <div class="img-upload-area">
       <input type="file" accept="image/*" id="avatar-file-input" onchange="onAvatarFile(event)" />
       <span id="avatar-upload-label">タップして画像を選択</span>
+      <div class="uploading-label" id="avatar-uploading">アップロード中...</div>
       <img id="avatar-preview" class="img-preview" alt="プレビュー" />
     </div>
     <label>名前</label><input type="text" id="input-name" placeholder="例：山田 太郎" />
@@ -221,16 +226,17 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
 </div>
 <div class="modal-bg" id="add-modal">
   <div class="modal">
-    <h3 id="add-modal-title">グッズを追加</h3>
+    <h3>グッズを追加</h3>
     <label>グッズ画像</label>
     <div class="img-upload-area">
       <input type="file" accept="image/*" id="goods-file-input" onchange="onGoodsFile(event)" />
       <span id="goods-upload-label">タップして画像を選択</span>
+      <div class="uploading-label" id="goods-uploading">アップロード中...</div>
       <img id="goods-img-preview" class="img-preview" alt="プレビュー" />
     </div>
     <label>グッズ名</label><input type="text" id="goods-name" placeholder="例：アクリルスタンド" />
     <label>価格（円）</label><input type="number" id="goods-price" placeholder="例：1500" />
-    <label>説明文（任意）</label><textarea id="goods-desc" rows="3" placeholder="例：A4サイズ、両面印刷、高品質な仕上がりです"></textarea>
+    <label>説明文（任意）</label><textarea id="goods-desc" rows="3" placeholder="例：A4サイズ、高品質な仕上がりです"></textarea>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('add-modal')">キャンセル</button>
       <button class="btn-primary" onclick="addGoods()">追加</button>
@@ -250,44 +256,27 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
   </div>
 </div>
 <input type="file" accept="image/*" id="avatar-direct-input" style="display:none" onchange="onAvatarDirectFile(event)" />
+
 <script>
 const GITHUB_OWNER = 'nao-to-web';
 const GITHUB_REPO  = 'naotowebshop';
 const GITHUB_FILE  = 'shop_data.json';
+const IMAGES_DIR   = 'images'; // 画像保存フォルダ
 let GITHUB_TOKEN   = '';
+
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 const MAX_ARTISTS = 5;
 let artists = [];
 let currentArtistId = null;
 let artistModalMode = 'add';
-let pendingAvatarDataUrl = null;
-let pendingGoodsImgDataUrl = null;
+let pendingAvatarUrl = null;
+let pendingGoodsImgUrl = null;
+
 function genId() { return '_' + Math.random().toString(36).slice(2, 9); }
 function getArtist() { return artists.find(a => a.id === currentArtistId); }
-function readFileAsDataUrl(file) { return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); }); }
-// 画像を圧縮してbase64に変換
-function compressImage(file, maxSize = 600, quality = 0.6) {
-  return new Promise(res => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        if (w > maxSize || h > maxSize) {
-          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-          else { w = Math.round(w * maxSize / h); h = maxSize; }
-        }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        res(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
 function setStatus(msg, type='') { const el = document.getElementById('status-msg'); el.textContent = msg; el.className = 'status-msg ' + type; }
+
+/* ===== トークン設定 ===== */
 function setToken() {
   const val = document.getElementById('token-input').value.trim();
   if (!val) { alert('トークンを入力してください'); return; }
@@ -297,21 +286,116 @@ function setToken() {
   banner.innerHTML = '<b>✅ トークン設定済み — 読み込み・保存が使えます</b>';
   loadFromGitHub();
 }
-// グローバルエラーを捕捉して画面に表示
-window.onerror = function(msg, src, line, col, err) {
-  alert('エラー発生:\n' + msg + '\n行: ' + line);
-  return false;
-};
-window.onunhandledrejection = function(e) {
-  alert('非同期エラー:\n' + (e.reason && e.reason.message ? e.reason.message : e.reason));
-};
+
+/* ===== 画像をGitHubにアップロード ===== */
+async function uploadImageToGitHub(file, filename) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        // base64部分だけ取り出す
+        const base64 = e.target.result.split(',')[1];
+        const path = `${IMAGES_DIR}/${filename}`;
+        // 既存ファイルのSHAを取得
+        let sha = null;
+        const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (getRes.ok) { sha = (await getRes.json()).sha; }
+        // アップロード
+        const body = { message: `Upload image: ${filename}`, content: base64 };
+        if (sha) body.sha = sha;
+        const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (putRes.ok) {
+          const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${path}`;
+          resolve(url);
+        } else {
+          const err = await putRes.json();
+          reject(new Error(err.message || '画像アップロード失敗'));
+        }
+      } catch(e) { reject(e); }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ===== 画像処理 ===== */
+async function onLogoFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
+  setStatus('ロゴ画像をアップロード中...', '');
+  try {
+    const filename = `logo_${Date.now()}.jpg`;
+    const url = await uploadImageToGitHub(f, filename);
+    const img = document.getElementById('logo-img'); img.src = url; img.style.display = 'block';
+    document.getElementById('logo-placeholder').style.display = 'none';
+    setStatus('✓ ロゴ画像をアップロードしました', 'ok');
+  } catch(err) { setStatus('画像アップロード失敗: ' + err.message, 'err'); }
+}
+
+async function onCoverFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
+  setStatus('カバー画像をアップロード中...', '');
+  try {
+    const filename = `cover_${Date.now()}.jpg`;
+    const url = await uploadImageToGitHub(f, filename);
+    const img = document.getElementById('cover-img'); img.src = url; img.style.display = 'block';
+    document.getElementById('cover-placeholder').style.display = 'none';
+    document.getElementById('cover-section').classList.add('has-img');
+    setStatus('✓ カバー画像をアップロードしました', 'ok');
+  } catch(err) { setStatus('画像アップロード失敗: ' + err.message, 'err'); }
+}
+
+async function onAvatarFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
+  document.getElementById('avatar-uploading').style.display = 'block';
+  try {
+    const filename = `avatar_${Date.now()}.jpg`;
+    pendingAvatarUrl = await uploadImageToGitHub(f, filename);
+    const p = document.getElementById('avatar-preview'); p.src = pendingAvatarUrl; p.style.display = 'block';
+    document.getElementById('avatar-upload-label').textContent = '✓ アップロード済み';
+  } catch(err) { alert('画像アップロード失敗: ' + err.message); }
+  document.getElementById('avatar-uploading').style.display = 'none';
+}
+
+async function onAvatarDirectFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
+  setStatus('アイコン画像をアップロード中...', '');
+  try {
+    const filename = `avatar_${Date.now()}.jpg`;
+    const url = await uploadImageToGitHub(f, filename);
+    getArtist().avatarImg = url; render();
+    setStatus('✓ アイコン画像をアップロードしました', 'ok');
+  } catch(err) { setStatus('画像アップロード失敗: ' + err.message, 'err'); }
+}
+
+async function onGoodsFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
+  document.getElementById('goods-uploading').style.display = 'block';
+  try {
+    const filename = `goods_${Date.now()}.jpg`;
+    pendingGoodsImgUrl = await uploadImageToGitHub(f, filename);
+    const p = document.getElementById('goods-img-preview'); p.src = pendingGoodsImgUrl; p.style.display = 'block';
+    document.getElementById('goods-upload-label').textContent = '✓ アップロード済み';
+  } catch(err) { alert('画像アップロード失敗: ' + err.message); }
+  document.getElementById('goods-uploading').style.display = 'none';
+}
+
+/* ===== GitHub JSON保存・読み込み ===== */
 async function saveToGitHub() {
   if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
   const btn = document.getElementById('save-btn');
   btn.disabled = true; setStatus('保存中...', '');
   try {
     const json = JSON.stringify(collectData(), null, 2);
-    // チャンク分割でbase64エンコード（大きなデータでも安全）
     const bytes = new TextEncoder().encode(json);
     let binary = '';
     const chunkSize = 8192;
@@ -319,13 +403,6 @@ async function saveToGitHub() {
       binary += String.fromCharCode(...bytes.slice(i, i + chunkSize));
     }
     const encoded = btoa(binary);
-    // データサイズ確認
-    const kb = Math.round(encoded.length / 1024);
-    if (encoded.length > 900000) {
-      setStatus(`データが大きすぎます（${kb}KB）。画像を減らしてください`, 'err');
-      btn.disabled = false; return;
-    }
-    setStatus(`保存中... (${kb}KB)`, '');
     let sha = null;
     const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
@@ -339,10 +416,11 @@ async function saveToGitHub() {
       body: JSON.stringify(body)
     });
     if (putRes.ok) { setStatus('✓ 保存しました', 'ok'); }
-    else { const e = await putRes.json(); setStatus('保存失敗: ' + (e.message || ''), 'err'); }
+    else { const err = await putRes.json(); setStatus('保存失敗: ' + (err.message || ''), 'err'); }
   } catch(e) { setStatus('通信エラー: ' + e.message, 'err'); }
   btn.disabled = false;
 }
+
 async function loadFromGitHub() {
   if (!GITHUB_TOKEN) return;
   setStatus('読み込み中...', '');
@@ -358,19 +436,18 @@ async function loadFromGitHub() {
       const binary = atob(cleaned);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const text = new TextDecoder('utf-8').decode(bytes);
-      data = JSON.parse(text);
+      data = JSON.parse(new TextDecoder('utf-8').decode(bytes));
     } else {
       const rawRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
         headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.raw+json' }
       });
-      const text = await rawRes.text();
-      data = JSON.parse(text);
+      data = JSON.parse(await rawRes.text());
     }
     applyData(data);
     setStatus('✓ 読み込みました', 'ok');
   } catch(e) { setStatus('読み込みエラー: ' + e.message, 'err'); }
 }
+
 function collectData() {
   return {
     siteTitle: document.getElementById('site-title-text').textContent,
@@ -382,6 +459,7 @@ function collectData() {
     artists, currentArtistId
   };
 }
+
 function applyData(data) {
   if (data.siteTitle) { document.getElementById('site-title-text').textContent = data.siteTitle; document.getElementById('footer-name').textContent = data.siteTitle; }
   if (data.conceptTitle) document.getElementById('concept-title').textContent = data.conceptTitle;
@@ -392,11 +470,8 @@ function applyData(data) {
   if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
   render();
 }
-async function onLogoFile(e) { const f = e.target.files[0]; if (!f) return; const d = await compressImage(f, 200, 0.7); const img = document.getElementById('logo-img'); img.src = d; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
-async function onCoverFile(e) { const f = e.target.files[0]; if (!f) return; const d = await compressImage(f, 800, 0.7); const img = document.getElementById('cover-img'); img.src = d; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
-async function onAvatarFile(e) { const f = e.target.files[0]; if (!f) return; pendingAvatarDataUrl = await compressImage(f, 200, 0.7); const p = document.getElementById('avatar-preview'); p.src = pendingAvatarDataUrl; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = f.name; }
-async function onAvatarDirectFile(e) { const f = e.target.files[0]; if (!f) return; getArtist().avatarImg = await compressImage(f, 200, 0.7); render(); }
-async function onGoodsFile(e) { const f = e.target.files[0]; if (!f) return; pendingGoodsImgDataUrl = await compressImage(f, 600, 0.65); const p = document.getElementById('goods-img-preview'); p.src = pendingGoodsImgDataUrl; p.style.display = 'block'; document.getElementById('goods-upload-label').textContent = f.name; }
+
+/* ===== タブ・表示 ===== */
 function renderTabs() {
   const tabs = document.getElementById('tabs'); tabs.innerHTML = '';
   artists.forEach(a => {
@@ -411,6 +486,7 @@ function renderTabs() {
     const btn = document.createElement('button'); btn.className = 'add-tab'; btn.textContent = '+ アーティストを追加'; btn.onclick = openAddArtistModal; tabs.appendChild(btn);
   }
 }
+
 function renderArtistView() {
   const view = document.getElementById('artist-view'); const a = getArtist();
   if (!a) { view.innerHTML = `<div class="empty-state"><div class="big">🎨</div><div>「+ アーティストを追加」から始めましょう</div></div>`; return; }
@@ -440,31 +516,37 @@ function renderArtistView() {
     <div class="goods-grid" id="goods-grid"></div>`;
   renderGoods();
 }
+
 function renderGoods() {
   const grid = document.getElementById('goods-grid'); if (!grid) return;
   const a = getArtist(); grid.innerHTML = '';
   (a.goods || []).forEach((g, i) => {
     const card = document.createElement('div'); card.className = 'goods-card';
-    const img = g.imgDataUrl ? `<img src="${g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
+    const img = g.imgUrl ? `<img src="${g.imgUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
     const descHtml = g.desc ? `<div class="goods-desc">${g.desc}</div>` : '';
-    card.innerHTML = `<div class="goods-img">${img}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${descHtml}<div class="goods-footer"><button class="edit-btn" onclick="openEditGoodsModal(${i})">編集</button><button class="del-btn" onclick="deleteGoods(${i})">削除</button></div></div>`;
+    card.innerHTML = `<div class="goods-img">${img}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${descHtml}<div class="goods-footer"><button class="del-btn" onclick="deleteGoods(${i})">削除</button></div></div>`;
     grid.appendChild(card);
   });
   const add = document.createElement('div'); add.className = 'add-card';
   add.innerHTML = `<div class="plus-icon">+</div><span>グッズを追加</span>`; add.onclick = openAddModal; grid.appendChild(add);
 }
+
 function render() { renderTabs(); renderArtistView(); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ===== アーティスト ===== */
 function openAddArtistModal() {
-  artistModalMode = 'add'; pendingAvatarDataUrl = null;
+  artistModalMode = 'add'; pendingAvatarUrl = null;
   document.getElementById('artist-modal-title').textContent = 'アーティストを追加';
   ['input-name','input-genre','input-desc','input-sns-x','input-sns-ig','input-sns-other'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('avatar-preview').style.display = 'none';
   document.getElementById('avatar-upload-label').textContent = 'タップして画像を選択';
+  document.getElementById('avatar-uploading').style.display = 'none';
   document.getElementById('artist-modal').classList.add('open');
 }
+
 function openEditArtistModal() {
-  artistModalMode = 'edit'; const a = getArtist(); pendingAvatarDataUrl = a.avatarImg || null;
+  artistModalMode = 'edit'; const a = getArtist(); pendingAvatarUrl = a.avatarImg || null;
   document.getElementById('artist-modal-title').textContent = 'アーティスト情報を編集';
   document.getElementById('input-name').value = a.name;
   document.getElementById('input-genre').value = a.genre;
@@ -473,10 +555,12 @@ function openEditArtistModal() {
   document.getElementById('input-sns-ig').value = a.snsIg || '';
   document.getElementById('input-sns-other').value = a.snsOther || '';
   const p = document.getElementById('avatar-preview');
-  if (a.avatarImg) { p.src = a.avatarImg; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = '画像設定済み'; }
+  if (a.avatarImg) { p.src = a.avatarImg; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = '✓ 設定済み'; }
   else { p.style.display = 'none'; document.getElementById('avatar-upload-label').textContent = 'タップして画像を選択'; }
+  document.getElementById('avatar-uploading').style.display = 'none';
   document.getElementById('artist-modal').classList.add('open');
 }
+
 function saveArtist() {
   const name = document.getElementById('input-name').value.trim() || '名無しアーティスト';
   const genre = document.getElementById('input-genre').value.trim() || 'ジャンル未設定';
@@ -485,68 +569,52 @@ function saveArtist() {
   const snsIg = document.getElementById('input-sns-ig').value.trim();
   const snsOther = document.getElementById('input-sns-other').value.trim();
   if (artistModalMode === 'add') {
-    const a = { id: genId(), name, genre, desc, snsX, snsIg, snsOther, avatarImg: pendingAvatarDataUrl, goods: [] };
+    const a = { id: genId(), name, genre, desc, snsX, snsIg, snsOther, avatarImg: pendingAvatarUrl, goods: [] };
     artists.push(a); currentArtistId = a.id;
   } else {
     const a = getArtist(); a.name = name; a.genre = genre; a.desc = desc; a.snsX = snsX; a.snsIg = snsIg; a.snsOther = snsOther;
-    if (pendingAvatarDataUrl) a.avatarImg = pendingAvatarDataUrl;
+    if (pendingAvatarUrl) a.avatarImg = pendingAvatarUrl;
   }
   closeModal('artist-modal'); render();
 }
+
 function deleteArtist() {
   if (!confirm(`「${getArtist().name}」を削除しますか？`)) return;
   artists = artists.filter(a => a.id !== currentArtistId);
   currentArtistId = artists.length > 0 ? artists[0].id : null; render();
 }
-let goodsModalMode = 'add';
-let editingGoodsIndex = null;
+
+/* ===== グッズ ===== */
 function openAddModal() {
-  goodsModalMode = 'add'; editingGoodsIndex = null;
-  pendingGoodsImgDataUrl = null;
-  document.getElementById('add-modal-title').textContent = 'グッズを追加';
+  pendingGoodsImgUrl = null;
   document.getElementById('goods-name').value = '';
   document.getElementById('goods-price').value = '';
   document.getElementById('goods-desc').value = '';
   document.getElementById('goods-img-preview').style.display = 'none';
   document.getElementById('goods-upload-label').textContent = 'タップして画像を選択';
+  document.getElementById('goods-uploading').style.display = 'none';
   document.getElementById('add-modal').classList.add('open');
 }
-function openEditGoodsModal(i) {
-  goodsModalMode = 'edit'; editingGoodsIndex = i;
-  const g = getArtist().goods[i];
-  pendingGoodsImgDataUrl = g.imgDataUrl || null;
-  document.getElementById('add-modal-title').textContent = 'グッズを編集';
-  document.getElementById('goods-name').value = g.name;
-  // 価格から数字だけ取り出す
-  document.getElementById('goods-price').value = g.price.replace(/[^0-9]/g, '');
-  document.getElementById('goods-desc').value = g.desc || '';
-  const preview = document.getElementById('goods-img-preview');
-  if (g.imgDataUrl) { preview.src = g.imgDataUrl; preview.style.display = 'block'; document.getElementById('goods-upload-label').textContent = '画像設定済み'; }
-  else { preview.style.display = 'none'; document.getElementById('goods-upload-label').textContent = 'タップして画像を選択'; }
-  document.getElementById('add-modal').classList.add('open');
-}
+
 function addGoods() {
   const name = document.getElementById('goods-name').value.trim() || '新しいグッズ';
   const raw = document.getElementById('goods-price').value;
   const price = raw ? parseInt(raw).toLocaleString('ja-JP') + '円' : '価格未定';
   const desc = document.getElementById('goods-desc').value.trim();
-  const imgDataUrl = pendingGoodsImgDataUrl;
-  if (goodsModalMode === 'edit' && editingGoodsIndex !== null) {
-    const g = getArtist().goods[editingGoodsIndex];
-    g.name = name; g.price = price; g.desc = desc;
-    if (imgDataUrl) g.imgDataUrl = imgDataUrl;
-  } else {
-    getArtist().goods.push({ name, price, desc, imgDataUrl });
-  }
+  getArtist().goods.push({ name, price, desc, imgUrl: pendingGoodsImgUrl });
   closeModal('add-modal'); renderGoods();
 }
+
 function deleteGoods(i) { getArtist().goods.splice(i, 1); renderGoods(); }
+
+/* ===== コンセプト ===== */
 function openConceptModal() {
   document.getElementById('input-site-title').value = document.getElementById('site-title-text').textContent;
   document.getElementById('input-concept-title').value = document.getElementById('concept-title').textContent;
   document.getElementById('input-concept-body').value = document.getElementById('concept-body').textContent;
   document.getElementById('concept-modal').classList.add('open');
 }
+
 function saveConceptModal() {
   const t = document.getElementById('input-site-title').value.trim() || 'NAO_to Web shop';
   document.getElementById('site-title-text').textContent = t;
@@ -555,6 +623,8 @@ function saveConceptModal() {
   document.getElementById('concept-body').textContent = document.getElementById('input-concept-body').value.trim();
   closeModal('concept-modal');
 }
+
+/* ===== 注文手順 ===== */
 function openOrderGuideModal() {
   [1,2,3].forEach(n => {
     const el = document.getElementById(`step-${n}`);
@@ -562,6 +632,7 @@ function openOrderGuideModal() {
   });
   document.getElementById('order-guide-modal').classList.add('open');
 }
+
 function saveOrderGuide() {
   [1,2,3].forEach(n => {
     const val = document.getElementById(`input-step-${n}`).value.trim();
@@ -571,7 +642,9 @@ function saveOrderGuide() {
   });
   closeModal('order-guide-modal');
 }
+
 render();
+window.addEventListener('load', () => { render(); });
 </script>
 </body>
 </html>
