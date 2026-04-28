@@ -265,8 +265,8 @@ let pendingGoodsImgDataUrl = null;
 function genId() { return '_' + Math.random().toString(36).slice(2, 9); }
 function getArtist() { return artists.find(a => a.id === currentArtistId); }
 function readFileAsDataUrl(file) { return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); }); }
-// 画像を圧縮してbase64に変換（最大800px、品質0.7）
-function compressImage(file, maxSize = 800, quality = 0.7) {
+// 画像を圧縮してbase64に変換
+function compressImage(file, maxSize = 600, quality = 0.6) {
   return new Promise(res => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -319,11 +319,13 @@ async function saveToGitHub() {
       binary += String.fromCharCode(...bytes.slice(i, i + chunkSize));
     }
     const encoded = btoa(binary);
-    // データサイズチェック（GitHubの上限は約1MB）
+    // データサイズ確認
+    const kb = Math.round(encoded.length / 1024);
     if (encoded.length > 900000) {
-      setStatus('データが大きすぎます。画像を減らして再度お試しください', 'err');
+      setStatus(`データが大きすぎます（${kb}KB）。画像を減らしてください`, 'err');
       btn.disabled = false; return;
     }
+    setStatus(`保存中... (${kb}KB)`, '');
     let sha = null;
     const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
@@ -390,11 +392,11 @@ function applyData(data) {
   if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
   render();
 }
-async function onLogoFile(e) { const f = e.target.files[0]; if (!f) return; const d = await compressImage(f, 400, 0.8); const img = document.getElementById('logo-img'); img.src = d; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
-async function onCoverFile(e) { const f = e.target.files[0]; if (!f) return; const d = await compressImage(f, 1200, 0.8); const img = document.getElementById('cover-img'); img.src = d; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
-async function onAvatarFile(e) { const f = e.target.files[0]; if (!f) return; pendingAvatarDataUrl = await compressImage(f, 400, 0.8); const p = document.getElementById('avatar-preview'); p.src = pendingAvatarDataUrl; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = f.name; }
-async function onAvatarDirectFile(e) { const f = e.target.files[0]; if (!f) return; getArtist().avatarImg = await compressImage(f, 400, 0.8); render(); }
-async function onGoodsFile(e) { const f = e.target.files[0]; if (!f) return; pendingGoodsImgDataUrl = await compressImage(f, 800, 0.75); const p = document.getElementById('goods-img-preview'); p.src = pendingGoodsImgDataUrl; p.style.display = 'block'; document.getElementById('goods-upload-label').textContent = f.name; }
+async function onLogoFile(e) { const f = e.target.files[0]; if (!f) return; const d = await compressImage(f, 200, 0.7); const img = document.getElementById('logo-img'); img.src = d; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
+async function onCoverFile(e) { const f = e.target.files[0]; if (!f) return; const d = await compressImage(f, 800, 0.7); const img = document.getElementById('cover-img'); img.src = d; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
+async function onAvatarFile(e) { const f = e.target.files[0]; if (!f) return; pendingAvatarDataUrl = await compressImage(f, 200, 0.7); const p = document.getElementById('avatar-preview'); p.src = pendingAvatarDataUrl; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = f.name; }
+async function onAvatarDirectFile(e) { const f = e.target.files[0]; if (!f) return; getArtist().avatarImg = await compressImage(f, 200, 0.7); render(); }
+async function onGoodsFile(e) { const f = e.target.files[0]; if (!f) return; pendingGoodsImgDataUrl = await compressImage(f, 600, 0.65); const p = document.getElementById('goods-img-preview'); p.src = pendingGoodsImgDataUrl; p.style.display = 'block'; document.getElementById('goods-upload-label').textContent = f.name; }
 function renderTabs() {
   const tabs = document.getElementById('tabs'); tabs.innerHTML = '';
   artists.forEach(a => {
