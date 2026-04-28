@@ -282,7 +282,25 @@ header { padding: 1rem; }
     <div id="cart-items-list"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('cart-modal')">閉じる</button>
-      <button class="copy-btn" id="copy-btn" onclick="copyCartText()">📋 テキストをコピー</button>
+      <button class="copy-btn" id="copy-btn" onclick="copyCartText()">✋ 注文内容を確定（手渡し）</button>
+      <button class="copy-btn" id="shipping-btn" onclick="openShippingModal()" style="background:#2a6cb0;">📦 郵送も依頼する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 郵送情報入力モーダル -->
+<div class="modal-bg" id="shipping-modal">
+  <div class="modal">
+    <h3>📦 お客様情報の入力</h3>
+    <label style="font-size:13px;color:#666;display:block;margin-bottom:4px;margin-top:12px;">お名前</label>
+    <input type="text" id="shipping-name" placeholder="例：山田 太郎" />
+    <label style="font-size:13px;color:#666;display:block;margin-bottom:4px;margin-top:12px;">郵便番号</label>
+    <input type="text" id="shipping-zip" placeholder="例：123-4567" />
+    <label style="font-size:13px;color:#666;display:block;margin-bottom:4px;margin-top:12px;">住所</label>
+    <textarea id="shipping-address" rows="3" placeholder="例：東京都渋谷区〇〇1-2-3"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('shipping-modal')">戻る</button>
+      <button class="copy-btn" id="confirm-btn" onclick="copyCartWithShipping()">📋 注文及び郵送先を確定（コピー）</button>
     </div>
   </div>
 </div>
@@ -567,6 +585,35 @@ function copyCartText() {
   navigator.clipboard.writeText(lines.join('\n')).then(() => {
     const btn = document.getElementById('copy-btn'); btn.textContent = '✓ コピーしました！'; btn.classList.add('copied');
     setTimeout(() => { btn.textContent = '📋 テキストをコピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function openShippingModal() {
+  document.getElementById('shipping-name').value = '';
+  document.getElementById('shipping-zip').value = '';
+  document.getElementById('shipping-address').value = '';
+  closeModal('cart-modal');
+  document.getElementById('shipping-modal').classList.add('open');
+}
+function copyCartWithShipping() {
+  const name = document.getElementById('shipping-name').value.trim() || '（未入力）';
+  const zip = document.getElementById('shipping-zip').value.trim() || '（未入力）';
+  const address = document.getElementById('shipping-address').value.trim() || '（未入力）';
+  const shopName = document.getElementById('site-title-text').textContent;
+  const lines = [`【${shopName} ご注文内容】`, ''];
+  cart.forEach(c => { lines.push(`・${c.name}（${c.artistName}）　¥${c.price} × ${c.qty}点`); });
+  const total = cart.reduce((s, c) => s + c.qty, 0);
+  const totalPrice = cart.reduce((s, c) => { const num = parseInt(c.price.replace(/[^0-9]/g, '')) || 0; return s + num * c.qty; }, 0);
+  lines.push('');
+  lines.push(`合計：${total}点 ／ ¥${totalPrice.toLocaleString('ja-JP')}`);
+  lines.push('');
+  lines.push('【郵送先】');
+  lines.push(`お名前：${name}`);
+  lines.push(`郵便番号：${zip}`);
+  lines.push(`住所：${address}`);
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const btn = document.getElementById('confirm-btn');
+    btn.textContent = '✓ コピーしました！'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 注文及び郵送先を確定（コピー）'; btn.classList.remove('copied'); }, 2000);
   });
 }
 window.addEventListener('load', async () => { render(); await loadFromGitHub(); });
