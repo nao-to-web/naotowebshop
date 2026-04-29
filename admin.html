@@ -255,6 +255,25 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     </div>
   </div>
 </div>
+<div class="modal-bg" id="edit-goods-modal">
+  <div class="modal">
+    <h3>グッズを編集</h3>
+    <label>グッズ画像</label>
+    <div class="img-upload-area">
+      <input type="file" accept="image/*" id="edit-goods-file-input" onchange="onEditGoodsFile(event)" />
+      <span id="edit-goods-upload-label">タップして画像を変更</span>
+      <div class="uploading-label" id="edit-goods-uploading">アップロード中...</div>
+      <img id="edit-goods-img-preview" class="img-preview" alt="プレビュー" />
+    </div>
+    <label>グッズ名</label><input type="text" id="edit-goods-name" />
+    <label>価格（円）</label><input type="number" id="edit-goods-price" />
+    <label>説明文（任意）</label><textarea id="edit-goods-desc" rows="3"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('edit-goods-modal')">キャンセル</button>
+      <button class="btn-primary" onclick="saveEditGoods()">保存</button>
+    </div>
+  </div>
+</div>
 <input type="file" accept="image/*" id="avatar-direct-input" style="display:none" onchange="onAvatarDirectFile(event)" />
 
 <script>
@@ -524,7 +543,7 @@ function renderGoods() {
     const card = document.createElement('div'); card.className = 'goods-card';
     const img = g.imgUrl ? `<img src="${g.imgUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
     const descHtml = g.desc ? `<div class="goods-desc">${g.desc}</div>` : '';
-    card.innerHTML = `<div class="goods-img">${img}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${descHtml}<div class="goods-footer"><button class="del-btn" onclick="deleteGoods(${i})">削除</button></div></div>`;
+    card.innerHTML = `<div class="goods-img">${img}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${descHtml}<div class="goods-footer"><button class="edit-btn" onclick="openEditGoodsModal(${i})">編集</button><button class="del-btn" onclick="deleteGoods(${i})">削除</button></div></div>`;
     grid.appendChild(card);
   });
   const add = document.createElement('div'); add.className = 'add-card';
@@ -606,6 +625,47 @@ function addGoods() {
 }
 
 function deleteGoods(i) { getArtist().goods.splice(i, 1); renderGoods(); }
+
+let editingGoodsIndex = null;
+let pendingEditGoodsImgUrl = null;
+
+function openEditGoodsModal(i) {
+  editingGoodsIndex = i;
+  const g = getArtist().goods[i];
+  pendingEditGoodsImgUrl = g.imgUrl || null;
+  document.getElementById('edit-goods-name').value = g.name;
+  const priceNum = g.price ? g.price.replace(/[^0-9]/g, '') : '';
+  document.getElementById('edit-goods-price').value = priceNum;
+  document.getElementById('edit-goods-desc').value = g.desc || '';
+  const preview = document.getElementById('edit-goods-img-preview');
+  if (g.imgUrl) { preview.src = g.imgUrl; preview.style.display = 'block'; document.getElementById('edit-goods-upload-label').textContent = '✓ 画像設定済み'; }
+  else { preview.style.display = 'none'; document.getElementById('edit-goods-upload-label').textContent = 'タップして画像を変更'; }
+  document.getElementById('edit-goods-uploading').style.display = 'none';
+  document.getElementById('edit-goods-modal').classList.add('open');
+}
+
+async function onEditGoodsFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
+  document.getElementById('edit-goods-uploading').style.display = 'block';
+  try {
+    const filename = `goods_${Date.now()}.jpg`;
+    pendingEditGoodsImgUrl = await uploadImageToGitHub(f, filename);
+    const p = document.getElementById('edit-goods-img-preview'); p.src = pendingEditGoodsImgUrl; p.style.display = 'block';
+    document.getElementById('edit-goods-upload-label').textContent = '✓ アップロード済み';
+  } catch(err) { alert('画像アップロード失敗: ' + err.message); }
+  document.getElementById('edit-goods-uploading').style.display = 'none';
+}
+
+function saveEditGoods() {
+  const g = getArtist().goods[editingGoodsIndex];
+  g.name = document.getElementById('edit-goods-name').value.trim() || g.name;
+  const raw = document.getElementById('edit-goods-price').value;
+  g.price = raw ? parseInt(raw).toLocaleString('ja-JP') + '円' : g.price;
+  g.desc = document.getElementById('edit-goods-desc').value.trim();
+  if (pendingEditGoodsImgUrl) g.imgUrl = pendingEditGoodsImgUrl;
+  closeModal('edit-goods-modal'); renderGoods();
+}
 
 /* ===== コンセプト ===== */
 function openConceptModal() {
