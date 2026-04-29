@@ -443,7 +443,7 @@ async function saveToGitHub() {
       body: JSON.stringify(body)
     });
     if (putRes.ok) { setStatus('✓ 保存しました', 'ok'); }
-    else { const err = await putRes.json(); setStatus('保存失敗: ' + (err.message || ''), 'err'); }
+    else { const err = await putRes.json(); alert('保存失敗詳細:\n' + JSON.stringify(err)); setStatus('保存失敗: ' + (err.message || ''), 'err'); }
   } catch(e) { setStatus('通信エラー: ' + e.message, 'err'); }
   btn.disabled = false;
 }
