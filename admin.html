@@ -237,6 +237,10 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     <label>グッズ名</label><input type="text" id="goods-name" placeholder="例：アクリルスタンド" />
     <label>価格（円）</label><input type="number" id="goods-price" placeholder="例：1500" />
     <label>説明文（任意）</label><textarea id="goods-desc" rows="3" placeholder="例：A4サイズ、高品質な仕上がりです"></textarea>
+    <label>カラー（カンマ区切り・1つなら非表示）</label>
+    <input type="text" id="goods-colors" placeholder="例：赤, 青, 白" />
+    <label>サイズ（カンマ区切り・1つなら非表示）</label>
+    <input type="text" id="goods-sizes" placeholder="例：S, M, L, XL" />
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('add-modal')">キャンセル</button>
       <button class="btn-primary" onclick="addGoods()">追加</button>
@@ -268,6 +272,10 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     <label>グッズ名</label><input type="text" id="edit-goods-name" />
     <label>価格（円）</label><input type="number" id="edit-goods-price" />
     <label>説明文（任意）</label><textarea id="edit-goods-desc" rows="3"></textarea>
+    <label>カラー（カンマ区切り・1つなら非表示）</label>
+    <input type="text" id="edit-goods-colors" placeholder="例：赤, 青, 白" />
+    <label>サイズ（カンマ区切り・1つなら非表示）</label>
+    <input type="text" id="edit-goods-sizes" placeholder="例：S, M, L, XL" />
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('edit-goods-modal')">キャンセル</button>
       <button class="btn-primary" onclick="saveEditGoods()">保存</button>
@@ -609,6 +617,8 @@ function openAddModal() {
   document.getElementById('goods-name').value = '';
   document.getElementById('goods-price').value = '';
   document.getElementById('goods-desc').value = '';
+  document.getElementById('goods-colors').value = '';
+  document.getElementById('goods-sizes').value = '';
   document.getElementById('goods-img-preview').style.display = 'none';
   document.getElementById('goods-upload-label').textContent = 'タップして画像を選択';
   document.getElementById('goods-uploading').style.display = 'none';
@@ -620,7 +630,9 @@ function addGoods() {
   const raw = document.getElementById('goods-price').value;
   const price = raw ? parseInt(raw).toLocaleString('ja-JP') + '円' : '価格未定';
   const desc = document.getElementById('goods-desc').value.trim();
-  getArtist().goods.push({ name, price, desc, imgUrl: pendingGoodsImgUrl });
+  const colors = document.getElementById('goods-colors').value.split(',').map(s => s.trim()).filter(s => s);
+  const sizes = document.getElementById('goods-sizes').value.split(',').map(s => s.trim()).filter(s => s);
+  getArtist().goods.push({ name, price, desc, colors, sizes, imgUrl: pendingGoodsImgUrl });
   closeModal('add-modal'); renderGoods();
 }
 
@@ -637,6 +649,8 @@ function openEditGoodsModal(i) {
   const priceNum = g.price ? g.price.replace(/[^0-9]/g, '') : '';
   document.getElementById('edit-goods-price').value = priceNum;
   document.getElementById('edit-goods-desc').value = g.desc || '';
+  document.getElementById('edit-goods-colors').value = (g.colors || []).join(', ');
+  document.getElementById('edit-goods-sizes').value = (g.sizes || []).join(', ');
   const preview = document.getElementById('edit-goods-img-preview');
   const currentImg = g.imgUrl || g.imgDataUrl;
   if (currentImg) { preview.src = currentImg; preview.style.display = 'block'; document.getElementById('edit-goods-upload-label').textContent = '✓ 画像設定済み'; }
@@ -664,6 +678,8 @@ function saveEditGoods() {
   const raw = document.getElementById('edit-goods-price').value;
   g.price = raw ? parseInt(raw).toLocaleString('ja-JP') + '円' : g.price;
   g.desc = document.getElementById('edit-goods-desc').value.trim();
+  g.colors = document.getElementById('edit-goods-colors').value.split(',').map(s => s.trim()).filter(s => s);
+  g.sizes = document.getElementById('edit-goods-sizes').value.split(',').map(s => s.trim()).filter(s => s);
   if (pendingEditGoodsImgUrl) { g.imgUrl = pendingEditGoodsImgUrl; delete g.imgDataUrl; }
   closeModal('edit-goods-modal'); renderGoods();
 }

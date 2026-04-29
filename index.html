@@ -104,6 +104,12 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .goods-detail-artist { font-size: 13px; color: #888; margin-bottom: 8px; }
 .goods-detail-price { font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 12px; }
 .goods-detail-desc { font-size: 14px; color: #555; line-height: 1.8; white-space: pre-wrap; margin-bottom: 1rem; }
+.goods-detail-options { margin-bottom: 1rem; }
+.goods-detail-options-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+.options-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.option-btn { border: 1px solid #ccc; border-radius: 8px; padding: 5px 12px; font-size: 13px; background: #fff; cursor: pointer; transition: all 0.15s; }
+.option-btn:hover { border-color: #888; }
+.option-btn.selected { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 .goods-card { background: #fff; border: 0.5px solid #e0e0dc; border-radius: 12px; overflow: hidden; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
 .goods-card:hover { border-color: #bbb; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
 .cart-icon-btn { position: relative; background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 14px; cursor: pointer; color: #1a1a1a; display: flex; align-items: center; gap: 6px; }
@@ -291,6 +297,14 @@ header { padding: 1rem; }
     <div class="goods-detail-artist" id="detail-artist"></div>
     <div class="goods-detail-price" id="detail-price"></div>
     <div class="goods-detail-desc" id="detail-desc"></div>
+    <div class="goods-detail-options" id="detail-colors-section" style="display:none;">
+      <div class="goods-detail-options-label">カラー</div>
+      <div class="options-btns" id="detail-colors"></div>
+    </div>
+    <div class="goods-detail-options" id="detail-sizes-section" style="display:none;">
+      <div class="goods-detail-options-label">サイズ</div>
+      <div class="options-btns" id="detail-sizes"></div>
+    </div>
     <div style="display:flex; gap:8px; margin-top:0.5rem;">
       <button class="btn-cancel" onclick="closeModal('goods-detail-modal')" style="flex:1;">閉じる</button>
       <button class="btn-primary" id="detail-cart-btn" style="flex:2;">🛒 カートに追加</button>
@@ -581,7 +595,7 @@ function renderCartItems() {
   list.innerHTML = cart.map((c, i) => `
     <div class="cart-item">
       <div class="cart-item-info">
-        <div class="cart-item-name">${c.name}</div>
+        <div class="cart-item-name">${c.name}${c.color ? ` / ${c.color}` : ''}${c.size ? ` / ${c.size}` : ''}</div>
         <div class="cart-item-artist">${c.artistName}</div>
         <div class="cart-item-price">¥${c.price} × ${c.qty}</div>
       </div>
@@ -603,7 +617,7 @@ function copyCartText() {
   if (cart.length === 0) { alert('カートが空です'); return; }
   const shopName = document.getElementById('site-title-text').textContent;
   const lines = [`【${shopName} ご注文内容】`, ''];
-  cart.forEach(c => { lines.push(`・${c.name}（${c.artistName}）　¥${c.price} × ${c.qty}点`); });
+  cart.forEach(c => { const opts = [c.color, c.size].filter(Boolean).join(' / '); lines.push(`・${c.name}${opts ? `（${opts}）` : ''}（${c.artistName}）　¥${c.price} × ${c.qty}点`); });
   const total = cart.reduce((s, c) => s + c.qty, 0);
   const totalPrice = cart.reduce((s, c) => { const num = parseInt(c.price.replace(/[^0-9]/g, '')) || 0; return s + num * c.qty; }, 0);
   lines.push(''); lines.push(`合計：${total}点 ／ ¥${totalPrice.toLocaleString('ja-JP')}`);
@@ -616,21 +630,55 @@ function openGoodsDetail(artistId, goodsIndex) {
   const a = artists.find(a => a.id === artistId); if (!a) return;
   const g = a.goods[goodsIndex]; if (!g) return;
   const imgEl = document.getElementById('detail-img');
-  imgEl.innerHTML = g.imgDataUrl ? `<img src="${g.imgDataUrl}" alt="${g.name}" />` : '🎁';
+  const imgSrc = g.imgUrl || g.imgDataUrl;
+  imgEl.innerHTML = imgSrc ? `<img src="${imgSrc}" alt="${g.name}" />` : '🎁';
   document.getElementById('detail-name').textContent = g.name;
   document.getElementById('detail-artist').textContent = a.name;
   document.getElementById('detail-price').textContent = `¥${g.price}`;
   document.getElementById('detail-desc').textContent = g.desc || '';
+
+  // カラー選択
+  const colors = g.colors || [];
+  const colorsSection = document.getElementById('detail-colors-section');
+  const colorsContainer = document.getElementById('detail-colors');
+  if (colors.length > 1) {
+    colorsSection.style.display = 'block';
+    colorsContainer.innerHTML = colors.map(c => `<button class="option-btn" onclick="selectOption(this, 'color')">${c}</button>`).join('');
+  } else { colorsSection.style.display = 'none'; }
+
+  // サイズ選択
+  const sizes = g.sizes || [];
+  const sizesSection = document.getElementById('detail-sizes-section');
+  const sizesContainer = document.getElementById('detail-sizes');
+  if (sizes.length > 1) {
+    sizesSection.style.display = 'block';
+    sizesContainer.innerHTML = sizes.map(s => `<button class="option-btn" onclick="selectOption(this, 'size')">${s}</button>`).join('');
+  } else { sizesSection.style.display = 'none'; }
+
   const btn = document.getElementById('detail-cart-btn');
   btn.textContent = '🛒 カートに追加';
   btn.onclick = () => {
-    const existing = cart.find(c => c.artistId === artistId && c.goodsIndex === goodsIndex);
-    if (existing) { existing.qty++; } else { cart.push({ artistId, artistName: a.name, goodsIndex, name: g.name, price: g.price, qty: 1 }); }
+    const selectedColor = colorsContainer.querySelector('.option-btn.selected')?.textContent || null;
+    const selectedSize = sizesContainer.querySelector('.option-btn.selected')?.textContent || null;
+    // カラーが複数あるのに未選択の場合は警告
+    if (colors.length > 1 && !selectedColor) { alert('カラーを選択してください'); return; }
+    if (sizes.length > 1 && !selectedSize) { alert('サイズを選択してください'); return; }
+    const key = `${artistId}_${goodsIndex}_${selectedColor || ''}_${selectedSize || ''}`;
+    const existing = cart.find(c => c.key === key);
+    if (existing) { existing.qty++; } else {
+      cart.push({ key, artistId, artistName: a.name, goodsIndex, name: g.name, price: g.price, color: selectedColor, size: selectedSize, qty: 1 });
+    }
     updateCartBadge();
     btn.textContent = '✓ 追加しました！';
     setTimeout(() => { btn.textContent = '🛒 カートに追加'; }, 800);
   };
   document.getElementById('goods-detail-modal').classList.add('open');
+}
+
+function selectOption(el, type) {
+  const container = el.parentElement;
+  container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
 }
 function openShippingModal() {
   document.getElementById('shipping-name').value = '';
@@ -645,7 +693,7 @@ function copyCartWithShipping() {
   const address = document.getElementById('shipping-address').value.trim() || '（未入力）';
   const shopName = document.getElementById('site-title-text').textContent;
   const lines = [`【${shopName} ご注文内容】`, ''];
-  cart.forEach(c => { lines.push(`・${c.name}（${c.artistName}）　¥${c.price} × ${c.qty}点`); });
+  cart.forEach(c => { const opts = [c.color, c.size].filter(Boolean).join(' / '); lines.push(`・${c.name}${opts ? `（${opts}）` : ''}（${c.artistName}）　¥${c.price} × ${c.qty}点`); });
   const total = cart.reduce((s, c) => s + c.qty, 0);
   const totalPrice = cart.reduce((s, c) => { const num = parseInt(c.price.replace(/[^0-9]/g, '')) || 0; return s + num * c.qty; }, 0);
   lines.push('');
