@@ -36,6 +36,10 @@ header { background: #fff; border-bottom: 0.5px solid #e0e0dc; padding: 1rem 2re
 .cover-section { position: relative; width: 100%; height: 340px; background: #ddd; overflow: hidden; }
 .cover-section.has-img { background: #111; }
 .cover-img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.85; }
+.cover-slider-track { display: flex; height: 100%; transition: transform 0.4s ease; }
+.cover-slider-track img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; opacity: 0.85; }
+.cover-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: background 0.15s; }
+.cover-dot.active { background: #fff; }
 .cover-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #aaa; font-size: 14px; cursor: pointer; background: #ececea; }
 .cover-placeholder .big-icon { font-size: 40px; }
 .cover-edit-btn { position: absolute; bottom: 14px; right: 14px; background: rgba(255,255,255,0.85); border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #333; cursor: pointer; }
@@ -156,11 +160,12 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
 <div class="cover-section" id="cover-section">
   <div class="cover-placeholder" id="cover-placeholder" onclick="document.getElementById('cover-file-input').click()">
     <div class="big-icon">🖼️</div>
-    <div>クリックしてカバー画像を追加</div>
+    <div>クリックしてカバー画像を追加（複数可）</div>
   </div>
-  <img class="cover-img" id="cover-img" style="display:none" alt="カバー画像" />
-  <button class="cover-edit-btn" onclick="document.getElementById('cover-file-input').click()">画像を変更</button>
-  <input type="file" accept="image/*" id="cover-file-input" style="display:none" onchange="onCoverFile(event)" />
+  <div id="cover-slider" style="width:100%;height:100%;display:none;"></div>
+  <div id="cover-dots" style="position:absolute;bottom:44px;left:0;right:0;display:flex;justify-content:center;gap:6px;"></div>
+  <button class="cover-edit-btn" onclick="document.getElementById('cover-file-input').click()">画像を追加・変更</button>
+  <input type="file" accept="image/*" multiple id="cover-file-input" style="display:none" onchange="onCoverFiles(event)" />
 </div>
 <div class="concept-section">
   <div class="concept-inner">
@@ -367,18 +372,53 @@ async function onLogoFile(e) {
   } catch(err) { setStatus('画像アップロード失敗: ' + err.message, 'err'); }
 }
 
-async function onCoverFile(e) {
-  const f = e.target.files[0]; if (!f) return;
+let coverImgUrls = [];
+let coverCurrentSlide = 0;
+
+async function onCoverFiles(e) {
+  const files = Array.from(e.target.files); if (!files.length) return;
   if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
-  setStatus('カバー画像をアップロード中...', '');
-  try {
-    const filename = `cover_${Date.now()}.jpg`;
-    const url = await uploadImageToGitHub(f, filename);
-    const img = document.getElementById('cover-img'); img.src = url; img.style.display = 'block';
-    document.getElementById('cover-placeholder').style.display = 'none';
-    document.getElementById('cover-section').classList.add('has-img');
-    setStatus('✓ カバー画像をアップロードしました', 'ok');
-  } catch(err) { setStatus('画像アップロード失敗: ' + err.message, 'err'); }
+  setStatus(`カバー画像をアップロード中...`, '');
+  for (const f of files) {
+    try {
+      const filename = `cover_${Date.now()}_${Math.random().toString(36).slice(2,6)}.jpg`;
+      const url = await uploadImageToGitHub(f, filename);
+      coverImgUrls.push(url);
+    } catch(err) { setStatus('画像アップロード失敗: ' + err.message, 'err'); }
+  }
+  renderCoverSlider();
+  setStatus(`✓ カバー画像 ${coverImgUrls.length}枚アップロードしました`, 'ok');
+}
+
+function renderCoverSlider() {
+  if (coverImgUrls.length === 0) return;
+  document.getElementById('cover-placeholder').style.display = 'none';
+  document.getElementById('cover-section').classList.add('has-img');
+  const slider = document.getElementById('cover-slider');
+  slider.style.display = 'block';
+  slider.innerHTML = `<div class="cover-slider-track" id="cover-slider-track">${coverImgUrls.map(url => `<img src="${url}" alt="カバー" />`).join('')}</div>`;
+  const dotsEl = document.getElementById('cover-dots');
+  if (coverImgUrls.length > 1) {
+    dotsEl.innerHTML = coverImgUrls.map((_, i) => `<div class="cover-dot${i === 0 ? ' active' : ''}" onclick="goToCoverSlide(${i})"></div>`).join('');
+    let startX = 0;
+    slider.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    slider.addEventListener('touchend', e => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) {
+        goToCoverSlide(diff > 0
+          ? Math.min(coverCurrentSlide + 1, coverImgUrls.length - 1)
+          : Math.max(coverCurrentSlide - 1, 0));
+      }
+    });
+  } else { dotsEl.innerHTML = ''; }
+  coverCurrentSlide = 0;
+}
+
+function goToCoverSlide(i) {
+  coverCurrentSlide = i;
+  const track = document.getElementById('cover-slider-track');
+  if (track) track.style.transform = `translateX(-${i * 100}%)`;
+  document.getElementById('cover-dots').querySelectorAll('.cover-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
 }
 
 async function onAvatarFile(e) {
@@ -506,7 +546,8 @@ function collectData() {
     conceptTitle: document.getElementById('concept-title').textContent,
     conceptBody: document.getElementById('concept-body').textContent,
     logoImg: document.getElementById('logo-img').style.display !== 'none' ? document.getElementById('logo-img').src : '',
-    coverImg: document.getElementById('cover-img').style.display !== 'none' ? document.getElementById('cover-img').src : '',
+    coverImg: coverImgUrls[0] || '',
+    coverImgs: coverImgUrls.length > 0 ? [...coverImgUrls] : [],
     steps: [1,2,3].map(n => ({ text: document.getElementById(`step-${n}`).textContent, isPlaceholder: document.getElementById(`step-${n}`).classList.contains('step-placeholder') })),
     artists, currentArtistId
   };
@@ -517,7 +558,13 @@ function applyData(data) {
   if (data.conceptTitle) document.getElementById('concept-title').textContent = data.conceptTitle;
   if (data.conceptBody !== undefined) document.getElementById('concept-body').textContent = data.conceptBody;
   if (data.logoImg) { const img = document.getElementById('logo-img'); img.src = data.logoImg; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
-  if (data.coverImg) { const img = document.getElementById('cover-img'); img.src = data.coverImg; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
+  if (data.coverImgs && data.coverImgs.length > 0) {
+    coverImgUrls = [...data.coverImgs];
+    renderCoverSlider();
+  } else if (data.coverImg) {
+    coverImgUrls = [data.coverImg];
+    renderCoverSlider();
+  }
   if (data.steps) { data.steps.forEach((s, i) => { const el = document.getElementById(`step-${i+1}`); el.textContent = s.text; if (s.isPlaceholder) el.classList.add('step-placeholder'); else el.classList.remove('step-placeholder'); }); }
   if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
   render();
