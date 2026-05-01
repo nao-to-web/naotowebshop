@@ -448,7 +448,7 @@ function renderGoods() {
   (a.goods || []).forEach((g, i) => {
     const card = document.createElement('div'); card.className = 'goods-card';
     const imgContent = (g.imgUrl || g.imgDataUrl) ? `<img src="${g.imgUrl || g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
-    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div></div>`;
+    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div></div>`;
     card.onclick = () => openGoodsDetail(a.id, i);
     grid.appendChild(card);
   });
