@@ -98,8 +98,14 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .btn-primary:hover { background: #333; }
 .btn-cancel { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 16px; font-size: 14px; color: #666; cursor: pointer; }
 .btn-cancel:hover { background: #f5f5f3; }
-.goods-detail-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #f5f5f3; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 1rem; overflow: hidden; }
+.goods-detail-img { width: 100%; aspect-ratio: 1; border-radius: 8px; background: #f5f5f3; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 1rem; overflow: hidden; position: relative; }
 .goods-detail-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.slider-wrap { position: relative; width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; margin-bottom: 1rem; background: #f5f5f3; }
+.slider-track { display: flex; height: 100%; transition: transform 0.3s ease; }
+.slider-track img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
+.slider-dots { display: flex; justify-content: center; gap: 6px; margin-top: -8px; margin-bottom: 12px; }
+.slider-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; cursor: pointer; transition: background 0.15s; }
+.slider-dot.active { background: #1a1a1a; }
 .goods-detail-name { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
 .goods-detail-artist { font-size: 13px; color: #888; margin-bottom: 8px; }
 .goods-detail-price { font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 12px; }
@@ -292,7 +298,8 @@ header { padding: 1rem; }
 <!-- グッズ詳細モーダル -->
 <div class="modal-bg" id="goods-detail-modal">
   <div class="modal">
-    <div class="goods-detail-img" id="detail-img"></div>
+    <div id="detail-slider"></div>
+    <div class="slider-dots" id="detail-dots"></div>
     <div class="goods-detail-name" id="detail-name"></div>
     <div class="goods-detail-artist" id="detail-artist"></div>
     <div class="goods-detail-price" id="detail-price"></div>
@@ -629,9 +636,40 @@ function copyCartText() {
 function openGoodsDetail(artistId, goodsIndex) {
   const a = artists.find(a => a.id === artistId); if (!a) return;
   const g = a.goods[goodsIndex]; if (!g) return;
-  const imgEl = document.getElementById('detail-img');
-  const imgSrc = g.imgUrl || g.imgDataUrl;
-  imgEl.innerHTML = imgSrc ? `<img src="${imgSrc}" alt="${g.name}" />` : '🎁';
+
+  // 画像スライダー
+  const imgs = (g.imgUrls && g.imgUrls.length > 0) ? g.imgUrls : (g.imgUrl || g.imgDataUrl ? [g.imgUrl || g.imgDataUrl] : []);
+  const sliderEl = document.getElementById('detail-slider');
+  const dotsEl = document.getElementById('detail-dots');
+  let currentSlide = 0;
+
+  if (imgs.length === 0) {
+    sliderEl.innerHTML = '<div class="goods-detail-img"><span>🎁</span></div>';
+    dotsEl.innerHTML = '';
+  } else if (imgs.length === 1) {
+    sliderEl.innerHTML = `<div class="slider-wrap"><div class="slider-track"><img src="${imgs[0]}" alt="${g.name}" /></div></div>`;
+    dotsEl.innerHTML = '';
+  } else {
+    sliderEl.innerHTML = `<div class="slider-wrap" id="slider-wrap">
+      <div class="slider-track" id="slider-track">${imgs.map(url => `<img src="${url}" alt="${g.name}" />`).join('')}</div>
+    </div>`;
+    dotsEl.innerHTML = imgs.map((_, i) => `<div class="slider-dot${i === 0 ? ' active' : ''}" onclick="goToSlide(${i})"></div>`).join('');
+    const wrap = document.getElementById('slider-wrap');
+    let startX = 0;
+    wrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    wrap.addEventListener('touchend', e => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) { goToSlide(diff > 0 ? Math.min(currentSlide + 1, imgs.length - 1) : Math.max(currentSlide - 1, 0)); }
+    });
+  }
+
+  window.goToSlide = (i) => {
+    currentSlide = i;
+    const track = document.getElementById('slider-track');
+    if (track) track.style.transform = `translateX(-${i * 100}%)`;
+    dotsEl.querySelectorAll('.slider-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
+  };
+
   document.getElementById('detail-name').textContent = g.name;
   document.getElementById('detail-artist').textContent = a.name;
   document.getElementById('detail-price').textContent = `¥${g.price}`;
@@ -660,7 +698,6 @@ function openGoodsDetail(artistId, goodsIndex) {
   btn.onclick = () => {
     const selectedColor = colorsContainer.querySelector('.option-btn.selected')?.textContent || null;
     const selectedSize = sizesContainer.querySelector('.option-btn.selected')?.textContent || null;
-    // カラーが複数あるのに未選択の場合は警告
     if (colors.length > 1 && !selectedColor) { alert('カラーを選択してください'); return; }
     if (sizes.length > 1 && !selectedSize) { alert('サイズを選択してください'); return; }
     const key = `${artistId}_${goodsIndex}_${selectedColor || ''}_${selectedSize || ''}`;

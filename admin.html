@@ -88,6 +88,9 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .img-upload-area { border: 0.5px dashed #ccc; border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer; color: #888; font-size: 13px; background: #f5f5f3; position: relative; margin-top: 4px; }
 .img-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 .img-preview { width: 100%; max-height: 140px; object-fit: contain; border-radius: 6px; margin-top: 8px; display: none; }
+.img-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #e0e0dc; position: relative; }
+.img-thumb-wrap { position: relative; display: inline-block; }
+.img-thumb-del { position: absolute; top: -6px; right: -6px; background: #c0392b; color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
 .uploading-label { font-size: 12px; color: #2a6cb0; margin-top: 4px; display: none; }
 .empty-state { text-align: center; padding: 3rem 1rem; color: #aaa; font-size: 14px; }
 .empty-state .big { font-size: 40px; margin-bottom: 1rem; }
@@ -227,13 +230,13 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
 <div class="modal-bg" id="add-modal">
   <div class="modal">
     <h3>グッズを追加</h3>
-    <label>グッズ画像</label>
+    <label>グッズ画像（複数選択可）</label>
     <div class="img-upload-area">
-      <input type="file" accept="image/*" id="goods-file-input" onchange="onGoodsFile(event)" />
-      <span id="goods-upload-label">タップして画像を選択</span>
+      <input type="file" accept="image/*" multiple id="goods-file-input" onchange="onGoodsFiles(event)" />
+      <span id="goods-upload-label">タップして画像を選択（複数可）</span>
       <div class="uploading-label" id="goods-uploading">アップロード中...</div>
-      <img id="goods-img-preview" class="img-preview" alt="プレビュー" />
     </div>
+    <div id="goods-img-previews" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
     <label>グッズ名</label><input type="text" id="goods-name" placeholder="例：アクリルスタンド" />
     <label>価格（円）</label><input type="number" id="goods-price" placeholder="例：1500" />
     <label>説明文（任意）</label><textarea id="goods-desc" rows="3" placeholder="例：A4サイズ、高品質な仕上がりです"></textarea>
@@ -262,13 +265,13 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
 <div class="modal-bg" id="edit-goods-modal">
   <div class="modal">
     <h3>グッズを編集</h3>
-    <label>グッズ画像</label>
+    <label>グッズ画像（複数選択可）</label>
     <div class="img-upload-area">
-      <input type="file" accept="image/*" id="edit-goods-file-input" onchange="onEditGoodsFile(event)" />
-      <span id="edit-goods-upload-label">タップして画像を変更</span>
+      <input type="file" accept="image/*" multiple id="edit-goods-file-input" onchange="onEditGoodsFiles(event)" />
+      <span id="edit-goods-upload-label">タップして画像を追加</span>
       <div class="uploading-label" id="edit-goods-uploading">アップロード中...</div>
-      <img id="edit-goods-img-preview" class="img-preview" alt="プレビュー" />
     </div>
+    <div id="edit-goods-img-previews" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
     <label>グッズ名</label><input type="text" id="edit-goods-name" />
     <label>価格（円）</label><input type="number" id="edit-goods-price" />
     <label>説明文（任意）</label><textarea id="edit-goods-desc" rows="3"></textarea>
@@ -297,7 +300,7 @@ let artists = [];
 let currentArtistId = null;
 let artistModalMode = 'add';
 let pendingAvatarUrl = null;
-let pendingGoodsImgUrl = null;
+let pendingGoodsImgUrls = [];
 
 function genId() { return '_' + Math.random().toString(36).slice(2, 9); }
 function getArtist() { return artists.find(a => a.id === currentArtistId); }
@@ -403,17 +406,39 @@ async function onAvatarDirectFile(e) {
   } catch(err) { setStatus('画像アップロード失敗: ' + err.message, 'err'); }
 }
 
-async function onGoodsFile(e) {
-  const f = e.target.files[0]; if (!f) return;
+async function onGoodsFiles(e) {
+  const files = Array.from(e.target.files); if (!files.length) return;
   if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
   document.getElementById('goods-uploading').style.display = 'block';
-  try {
-    const filename = `goods_${Date.now()}.jpg`;
-    pendingGoodsImgUrl = await uploadImageToGitHub(f, filename);
-    const p = document.getElementById('goods-img-preview'); p.src = pendingGoodsImgUrl; p.style.display = 'block';
-    document.getElementById('goods-upload-label').textContent = '✓ アップロード済み';
-  } catch(err) { alert('画像アップロード失敗: ' + err.message); }
+  for (const f of files) {
+    try {
+      const filename = `goods_${Date.now()}_${Math.random().toString(36).slice(2,6)}.jpg`;
+      const url = await uploadImageToGitHub(f, filename);
+      pendingGoodsImgUrls.push(url);
+      renderGoodsPreviews('goods-img-previews', pendingGoodsImgUrls);
+    } catch(err) { alert('画像アップロード失敗: ' + err.message); }
+  }
   document.getElementById('goods-uploading').style.display = 'none';
+  document.getElementById('goods-upload-label').textContent = `✓ ${pendingGoodsImgUrls.length}枚アップロード済み`;
+}
+
+function renderGoodsPreviews(containerId, urls) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = urls.map((url, i) => `
+    <div class="img-thumb-wrap">
+      <img class="img-thumb" src="${url}" alt="画像${i+1}" />
+      <button class="img-thumb-del" onclick="removeGoodsImg('${containerId}', ${i})">×</button>
+    </div>`).join('');
+}
+
+function removeGoodsImg(containerId, index) {
+  if (containerId === 'goods-img-previews') {
+    pendingGoodsImgUrls.splice(index, 1);
+    renderGoodsPreviews(containerId, pendingGoodsImgUrls);
+  } else {
+    pendingEditGoodsImgUrls.splice(index, 1);
+    renderGoodsPreviews(containerId, pendingEditGoodsImgUrls);
+  }
 }
 
 /* ===== GitHub JSON保存・読み込み ===== */
@@ -613,14 +638,14 @@ function deleteArtist() {
 
 /* ===== グッズ ===== */
 function openAddModal() {
-  pendingGoodsImgUrl = null;
+  pendingGoodsImgUrls = [];
   document.getElementById('goods-name').value = '';
   document.getElementById('goods-price').value = '';
   document.getElementById('goods-desc').value = '';
   document.getElementById('goods-colors').value = '';
   document.getElementById('goods-sizes').value = '';
-  document.getElementById('goods-img-preview').style.display = 'none';
-  document.getElementById('goods-upload-label').textContent = 'タップして画像を選択';
+  document.getElementById('goods-img-previews').innerHTML = '';
+  document.getElementById('goods-upload-label').textContent = 'タップして画像を選択（複数可）';
   document.getElementById('goods-uploading').style.display = 'none';
   document.getElementById('add-modal').classList.add('open');
 }
@@ -632,44 +657,47 @@ function addGoods() {
   const desc = document.getElementById('goods-desc').value.trim();
   const colors = document.getElementById('goods-colors').value.split(',').map(s => s.trim()).filter(s => s);
   const sizes = document.getElementById('goods-sizes').value.split(',').map(s => s.trim()).filter(s => s);
-  getArtist().goods.push({ name, price, desc, colors, sizes, imgUrl: pendingGoodsImgUrl });
+  const imgUrl = pendingGoodsImgUrls[0] || null;
+  const imgUrls = pendingGoodsImgUrls.length > 0 ? [...pendingGoodsImgUrls] : [];
+  getArtist().goods.push({ name, price, desc, colors, sizes, imgUrl, imgUrls });
   closeModal('add-modal'); renderGoods();
 }
 
 function deleteGoods(i) { getArtist().goods.splice(i, 1); renderGoods(); }
 
 let editingGoodsIndex = null;
-let pendingEditGoodsImgUrl = null;
+let pendingEditGoodsImgUrls = [];
 
 function openEditGoodsModal(i) {
   editingGoodsIndex = i;
   const g = getArtist().goods[i];
-  pendingEditGoodsImgUrl = g.imgUrl || g.imgDataUrl || null;
+  pendingEditGoodsImgUrls = g.imgUrls ? [...g.imgUrls] : (g.imgUrl || g.imgDataUrl ? [g.imgUrl || g.imgDataUrl] : []);
   document.getElementById('edit-goods-name').value = g.name;
   const priceNum = g.price ? g.price.replace(/[^0-9]/g, '') : '';
   document.getElementById('edit-goods-price').value = priceNum;
   document.getElementById('edit-goods-desc').value = g.desc || '';
   document.getElementById('edit-goods-colors').value = (g.colors || []).join(', ');
   document.getElementById('edit-goods-sizes').value = (g.sizes || []).join(', ');
-  const preview = document.getElementById('edit-goods-img-preview');
-  const currentImg = g.imgUrl || g.imgDataUrl;
-  if (currentImg) { preview.src = currentImg; preview.style.display = 'block'; document.getElementById('edit-goods-upload-label').textContent = '✓ 画像設定済み'; }
-  else { preview.style.display = 'none'; document.getElementById('edit-goods-upload-label').textContent = 'タップして画像を変更'; }
   document.getElementById('edit-goods-uploading').style.display = 'none';
+  document.getElementById('edit-goods-upload-label').textContent = pendingEditGoodsImgUrls.length > 0 ? `✓ ${pendingEditGoodsImgUrls.length}枚設定済み` : 'タップして画像を追加';
+  renderGoodsPreviews('edit-goods-img-previews', pendingEditGoodsImgUrls);
   document.getElementById('edit-goods-modal').classList.add('open');
 }
 
-async function onEditGoodsFile(e) {
-  const f = e.target.files[0]; if (!f) return;
+async function onEditGoodsFiles(e) {
+  const files = Array.from(e.target.files); if (!files.length) return;
   if (!GITHUB_TOKEN) { alert('先にトークンを設定してください'); return; }
   document.getElementById('edit-goods-uploading').style.display = 'block';
-  try {
-    const filename = `goods_${Date.now()}.jpg`;
-    pendingEditGoodsImgUrl = await uploadImageToGitHub(f, filename);
-    const p = document.getElementById('edit-goods-img-preview'); p.src = pendingEditGoodsImgUrl; p.style.display = 'block';
-    document.getElementById('edit-goods-upload-label').textContent = '✓ アップロード済み';
-  } catch(err) { alert('画像アップロード失敗: ' + err.message); }
+  for (const f of files) {
+    try {
+      const filename = `goods_${Date.now()}_${Math.random().toString(36).slice(2,6)}.jpg`;
+      const url = await uploadImageToGitHub(f, filename);
+      pendingEditGoodsImgUrls.push(url);
+      renderGoodsPreviews('edit-goods-img-previews', pendingEditGoodsImgUrls);
+    } catch(err) { alert('画像アップロード失敗: ' + err.message); }
+  }
   document.getElementById('edit-goods-uploading').style.display = 'none';
+  document.getElementById('edit-goods-upload-label').textContent = `✓ ${pendingEditGoodsImgUrls.length}枚アップロード済み`;
 }
 
 function saveEditGoods() {
@@ -680,7 +708,11 @@ function saveEditGoods() {
   g.desc = document.getElementById('edit-goods-desc').value.trim();
   g.colors = document.getElementById('edit-goods-colors').value.split(',').map(s => s.trim()).filter(s => s);
   g.sizes = document.getElementById('edit-goods-sizes').value.split(',').map(s => s.trim()).filter(s => s);
-  if (pendingEditGoodsImgUrl) { g.imgUrl = pendingEditGoodsImgUrl; delete g.imgDataUrl; }
+  if (pendingEditGoodsImgUrls.length > 0) {
+    g.imgUrls = [...pendingEditGoodsImgUrls];
+    g.imgUrl = pendingEditGoodsImgUrls[0];
+    delete g.imgDataUrl;
+  }
   closeModal('edit-goods-modal'); renderGoods();
 }
 
