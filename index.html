@@ -20,6 +20,10 @@ header { background: #fff; border-bottom: 0.5px solid #e0e0dc; padding: 1rem 2re
 .cover-section { position: relative; width: 100%; height: 340px; background: #ddd; overflow: hidden; }
 .cover-section.has-img { background: #111; }
 .cover-img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.85; }
+.cover-slider-track { display: flex; height: 100%; transition: transform 0.4s ease; }
+.cover-slider-track img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; opacity: 0.85; }
+.cover-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: background 0.15s; }
+.cover-dot.active { background: #fff; }
 .cover-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #aaa; font-size: 14px; cursor: pointer; background: #ececea; }
 .cover-placeholder .big-icon { font-size: 40px; }
 .cover-edit-btn { position: absolute; bottom: 14px; right: 14px; background: rgba(255,255,255,0.85); border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #333; cursor: pointer; backdrop-filter: blur(4px); }
@@ -182,13 +186,12 @@ header { padding: 1rem; }
   </button>
 </header>
 <div class="cover-section" id="cover-section">
-<div class="cover-placeholder" id="cover-placeholder" onclick="document.getElementById('cover-file-input').click()">
+<div class="cover-placeholder" id="cover-placeholder">
 <div class="big-icon">🖼️</div>
-<div>クリックしてカバー画像を追加</div>
+<div>カバー画像</div>
 </div>
-<img class="cover-img" id="cover-img" style="display:none" alt="カバー画像" />
-<button class="cover-edit-btn" id="cover-edit-btn" onclick="document.getElementById('cover-file-input').click()">画像を変更</button>
-<input type="file" accept="image/*" id="cover-file-input" style="display:none" onchange="onCoverFile(event)" />
+<div id="cover-slider" style="width:100%;height:100%;display:none;"></div>
+<div id="cover-dots" style="position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:6px;"></div>
 </div>
 <div class="concept-section">
 <div class="concept-inner">
@@ -196,7 +199,7 @@ header { padding: 1rem; }
 <div class="concept-title" id="concept-title">ショップのタイトル</div>
 <div class="concept-body" id="concept-body">ここにショップのコンセプトや紹介文を入力してください。</div>
 </div>
-<button class="concept-edit-btn" onclick="openConceptModal()">編集</button>
+<button class="concept-edit-btn" style="display:none;" onclick="openConceptModal()">編集</button>
 </div>
 </div>
 <main>
@@ -207,7 +210,7 @@ header { padding: 1rem; }
   <div class="order-guide-inner">
     <div class="order-guide-header">
       <div class="order-guide-title">📋 注文の手順</div>
-      <button class="order-guide-edit-btn" onclick="openOrderGuideModal()">編集</button>
+      <button class="order-guide-edit-btn" style="display:none;" onclick="openOrderGuideModal()">編集</button>
     </div>
     <div class="order-steps" id="order-steps">
       <div class="order-step"><div class="step-num">1</div><div class="step-text step-placeholder" id="step-1">（手順1を入力してください）</div></div>
@@ -416,9 +419,6 @@ function renderTabs() {
     tab.onclick = () => { currentArtistId = a.id; render(); };
     tabs.appendChild(tab);
   });
-  if (artists.length < MAX_ARTISTS) {
-    const addTab = document.createElement('button'); addTab.className = 'add-tab'; addTab.textContent = '+ アーティストを追加'; addTab.onclick = openAddArtistModal; tabs.appendChild(addTab);
-  }
 }
 function renderArtistView() {
   const view = document.getElementById('artist-view'); const a = getArtist();
@@ -426,9 +426,8 @@ function renderArtistView() {
   const avatarInner = a.avatarImg ? `<img src="${a.avatarImg}" alt="${a.name}" />` : a.name.charAt(0).toUpperCase();
   view.innerHTML = `
     <div class="hero">
-      <div class="avatar-wrap" onclick="document.getElementById('avatar-direct-input').click()" title="画像を変更">
+      <div class="avatar-wrap">
         <div class="avatar">${avatarInner}</div>
-        <div class="avatar-overlay"><span>変更</span></div>
       </div>
       <div class="artist-info">
         <div class="artist-name">${a.name}</div>
@@ -439,10 +438,6 @@ function renderArtistView() {
           ${a.snsIg ? `<a class="sns-link" href="${a.snsIg}" target="_blank" rel="noopener"><span class="sns-icon">📷</span> Instagram</a>` : ''}
           ${a.snsOther ? `<a class="sns-link" href="${a.snsOther}" target="_blank" rel="noopener"><span class="sns-icon">🔗</span> リンク</a>` : ''}
         </div>
-      </div>
-      <div class="hero-actions">
-        <button class="edit-btn" onclick="openEditArtistModal()">編集</button>
-        <button class="delete-artist-btn" onclick="deleteArtist()">削除</button>
       </div>
     </div>
     <div class="section-title">グッズ一覧</div>
@@ -526,6 +521,41 @@ function addGoods() {
 }
 function deleteGoods(index) { getArtist().goods.splice(index, 1); renderGoods(); }
 
+let coverCurrentSlide = 0;
+
+function renderCoverSlider(urls) {
+  if (!urls || urls.length === 0) return;
+  document.getElementById('cover-placeholder').style.display = 'none';
+  document.getElementById('cover-section').classList.add('has-img');
+  const slider = document.getElementById('cover-slider');
+  slider.style.display = 'block';
+  slider.innerHTML = `<div class="cover-slider-track" id="cover-slider-track">${urls.map(url => `<img src="${url}" alt="カバー" />`).join('')}</div>`;
+  const dotsEl = document.getElementById('cover-dots');
+  if (urls.length > 1) {
+    dotsEl.innerHTML = urls.map((_, i) => `<div class="cover-dot${i === 0 ? ' active' : ''}" onclick="goToCoverSlide(${i})"></div>`).join('');
+    // スワイプ対応
+    const sliderEl = document.getElementById('cover-slider');
+    let startX = 0;
+    sliderEl.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    sliderEl.addEventListener('touchend', e => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) {
+        goToCoverSlide(diff > 0
+          ? Math.min(coverCurrentSlide + 1, urls.length - 1)
+          : Math.max(coverCurrentSlide - 1, 0));
+      }
+    });
+  } else { dotsEl.innerHTML = ''; }
+  coverCurrentSlide = 0;
+}
+
+function goToCoverSlide(i) {
+  coverCurrentSlide = i;
+  const track = document.getElementById('cover-slider-track');
+  if (track) track.style.transform = `translateX(-${i * 100}%)`;
+  document.getElementById('cover-dots').querySelectorAll('.cover-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
+}
+
 /* ===== GitHubからデータを自動読み込み ===== */
 const GITHUB_OWNER = 'nao-to-web';
 const GITHUB_REPO  = 'naotowebshop';
@@ -554,11 +584,45 @@ async function loadFromGitHub() {
     if (data.conceptTitle) document.getElementById('concept-title').textContent = data.conceptTitle;
     if (data.conceptBody !== undefined) document.getElementById('concept-body').textContent = data.conceptBody;
     if (data.logoImg) { const img = document.getElementById('logo-img'); img.src = data.logoImg; img.style.display = 'block'; document.getElementById('logo-placeholder').style.display = 'none'; }
-    if (data.coverImg) { const img = document.getElementById('cover-img'); img.src = data.coverImg; img.style.display = 'block'; document.getElementById('cover-placeholder').style.display = 'none'; document.getElementById('cover-section').classList.add('has-img'); }
+    if (data.coverImgs && data.coverImgs.length > 0) {
+      renderCoverSlider(data.coverImgs);
+    } else if (data.coverImg) {
+      renderCoverSlider([data.coverImg]);
+    }
     if (data.steps) { data.steps.forEach((s, i) => { const el = document.getElementById(`step-${i+1}`); el.textContent = s.text; if (s.isPlaceholder) el.classList.add('step-placeholder'); else el.classList.remove('step-placeholder'); }); }
     if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
     render();
   } catch(e) { console.warn('データ読み込み失敗:', e); }
+}
+
+/* ===== カバースライダー ===== */
+let indexCoverCurrentSlide = 0;
+function renderCoverSlider(urls) {
+  if (!urls || urls.length === 0) return;
+  document.getElementById('cover-placeholder').style.display = 'none';
+  document.getElementById('cover-section').classList.add('has-img');
+  const slider = document.getElementById('cover-slider');
+  slider.style.display = 'block';
+  slider.innerHTML = `<div class="cover-slider-track" id="cover-slider-track">${urls.map(url => `<img src="${url}" alt="カバー" />`).join('')}</div>`;
+  const dotsEl = document.getElementById('cover-dots');
+  if (urls.length > 1) {
+    dotsEl.innerHTML = urls.map((_, i) => `<div class="cover-dot${i === 0 ? ' active' : ''}"></div>`).join('');
+    dotsEl.querySelectorAll('.cover-dot').forEach((d, i) => d.onclick = () => goToCoverSlide(i, urls.length));
+    // スワイプ対応
+    let startX = 0;
+    slider.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    slider.addEventListener('touchend', e => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) { goToCoverSlide(diff > 0 ? Math.min(indexCoverCurrentSlide + 1, urls.length - 1) : Math.max(indexCoverCurrentSlide - 1, 0), urls.length); }
+    });
+  } else { dotsEl.innerHTML = ''; }
+  indexCoverCurrentSlide = 0;
+}
+function goToCoverSlide(i, total) {
+  indexCoverCurrentSlide = i;
+  const track = document.getElementById('cover-slider-track');
+  if (track) track.style.transform = `translateX(-${i * 100}%)`;
+  document.getElementById('cover-dots').querySelectorAll('.cover-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
 }
 
 /* ===== 注文手順 ===== */
