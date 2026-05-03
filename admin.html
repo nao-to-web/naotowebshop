@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NAO_to Web shop［管理画面］</title>
+<title>NAO to official shop［管理画面］</title>
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -138,7 +138,7 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
       <img class="logo-img" id="logo-img" alt="ロゴ" />
       <div class="logo-overlay"><span>変更</span></div>
     </div>
-    <span class="site-title" id="site-title-text">NAO_to Web shop</span>
+    <span class="site-title" id="site-title-text">NAO to official shop</span>
   </div>
   <input type="file" accept="image/*" id="logo-file-input" style="display:none" onchange="onLogoFile(event)" />
   <div class="save-load-area">
@@ -195,7 +195,7 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
   </div>
 </div>
 <footer>
-  &copy; <span id="footer-year"></span> <span id="footer-name">NAO_to Web shop</span>. All rights reserved.
+  &copy; <span id="footer-year"></span> <span id="footer-name">NAO to official shop</span>. All rights reserved.
 </footer>
 
 <!-- モーダル類 -->
@@ -792,7 +792,7 @@ function openConceptModal() {
 }
 
 function saveConceptModal() {
-  const t = document.getElementById('input-site-title').value.trim() || 'NAO_to Web shop';
+  const t = document.getElementById('input-site-title').value.trim() || 'NAO to official shop';
   document.getElementById('site-title-text').textContent = t;
   document.getElementById('footer-name').textContent = t;
   document.getElementById('concept-title').textContent = document.getElementById('input-concept-title').value.trim() || 'ショップのタイトル';
