@@ -226,6 +226,7 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     <label>紹介文</label><textarea id="input-desc" rows="3"></textarea>
     <label>X (Twitter) URL</label><input type="text" id="input-sns-x" placeholder="https://x.com/username" />
     <label>Instagram URL</label><input type="text" id="input-sns-ig" placeholder="https://instagram.com/username" />
+    <label>Facebook URL</label><input type="text" id="input-sns-fb" placeholder="https://facebook.com/username" />
     <label>その他SNS URL</label><input type="text" id="input-sns-other" placeholder="https://example.com" />
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('artist-modal')">キャンセル</button>
@@ -623,6 +624,7 @@ function renderArtistView() {
         <div class="artist-sns">
           ${a.snsX ? `<a class="sns-link" href="${a.snsX}" target="_blank"><span>𝕏</span> X</a>` : ''}
           ${a.snsIg ? `<a class="sns-link" href="${a.snsIg}" target="_blank"><span>📷</span> Instagram</a>` : ''}
+          ${a.snsFb ? `<a class="sns-link" href="${a.snsFb}" target="_blank"><span>📘</span> Facebook</a>` : ''}
           ${a.snsOther ? `<a class="sns-link" href="${a.snsOther}" target="_blank"><span>🔗</span> リンク</a>` : ''}
         </div>
       </div>
@@ -657,7 +659,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function openAddArtistModal() {
   artistModalMode = 'add'; pendingAvatarUrl = null;
   document.getElementById('artist-modal-title').textContent = 'アーティストを追加';
-  ['input-name','input-genre','input-desc','input-sns-x','input-sns-ig','input-sns-other'].forEach(id => document.getElementById(id).value = '');
+  ['input-name','input-genre','input-desc','input-sns-x','input-sns-ig','input-sns-fb','input-sns-other'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('avatar-preview').style.display = 'none';
   document.getElementById('avatar-upload-label').textContent = 'タップして画像を選択';
   document.getElementById('avatar-uploading').style.display = 'none';
@@ -672,6 +674,7 @@ function openEditArtistModal() {
   document.getElementById('input-desc').value = a.desc;
   document.getElementById('input-sns-x').value = a.snsX || '';
   document.getElementById('input-sns-ig').value = a.snsIg || '';
+  document.getElementById('input-sns-fb').value = a.snsFb || '';
   document.getElementById('input-sns-other').value = a.snsOther || '';
   const p = document.getElementById('avatar-preview');
   if (a.avatarImg) { p.src = a.avatarImg; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = '✓ 設定済み'; }
@@ -686,12 +689,13 @@ function saveArtist() {
   const desc = document.getElementById('input-desc').value.trim() || '紹介文未設定';
   const snsX = document.getElementById('input-sns-x').value.trim();
   const snsIg = document.getElementById('input-sns-ig').value.trim();
+  const snsFb = document.getElementById('input-sns-fb').value.trim();
   const snsOther = document.getElementById('input-sns-other').value.trim();
   if (artistModalMode === 'add') {
-    const a = { id: genId(), name, genre, desc, snsX, snsIg, snsOther, avatarImg: pendingAvatarUrl, goods: [] };
+    const a = { id: genId(), name, genre, desc, snsX, snsIg, snsFb, snsOther, avatarImg: pendingAvatarUrl, goods: [] };
     artists.push(a); currentArtistId = a.id;
   } else {
-    const a = getArtist(); a.name = name; a.genre = genre; a.desc = desc; a.snsX = snsX; a.snsIg = snsIg; a.snsOther = snsOther;
+    const a = getArtist(); a.name = name; a.genre = genre; a.desc = desc; a.snsX = snsX; a.snsIg = snsIg; a.snsFb = snsFb; a.snsOther = snsOther;
     if (pendingAvatarUrl) a.avatarImg = pendingAvatarUrl;
   }
   closeModal('artist-modal'); render();
