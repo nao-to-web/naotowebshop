@@ -343,8 +343,7 @@ header { padding: 1rem; }
     </div>
     <div id="cart-items-list"></div>
     <div style="display:flex; gap:8px; margin-top:1.25rem; flex-direction:column;">
-      <button class="copy-btn" id="copy-btn" onclick="copyCartText()">✋ 注文内容を確定（手渡し）</button>
-      <button class="copy-btn" id="shipping-btn" onclick="openShippingModal()" style="background:#2a6cb0;">📦 郵送も依頼する</button>
+      <button class="copy-btn" id="shipping-btn" onclick="openShippingModal()" style="background:#2a6cb0;">📦 郵送先を記載</button>
     </div>
   </div>
 </div>
@@ -361,7 +360,7 @@ header { padding: 1rem; }
     <textarea id="shipping-address" rows="3" placeholder="例：東京都渋谷区〇〇1-2-3"></textarea>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('shipping-modal')">戻る</button>
-      <button class="copy-btn" id="confirm-btn" onclick="copyCartWithShipping()">📋 注文及び郵送先を確定（コピー）</button>
+      <button class="copy-btn" id="confirm-btn" onclick="copyCartWithShipping()">📋 注文内容を確定（コピー）</button>
     </div>
   </div>
 </div>
@@ -820,7 +819,7 @@ function copyCartWithShipping() {
   navigator.clipboard.writeText(lines.join('\n')).then(() => {
     const btn = document.getElementById('confirm-btn');
     btn.textContent = '✓ コピーしました！'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋 注文及び郵送先を確定（コピー）'; btn.classList.remove('copied'); }, 2000);
+    setTimeout(() => { btn.textContent = '📋 注文内容を確定（コピー）'; btn.classList.remove('copied'); }, 2000);
   });
 }
 window.addEventListener('load', async () => { render(); await loadFromGitHub(); });
