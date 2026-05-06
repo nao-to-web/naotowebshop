@@ -160,6 +160,11 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .save-btn:hover { background: #333; }
 .load-btn { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #555; cursor: pointer; }
 .load-btn:hover { background: #f5f5f3; }
+.loading-screen { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 16px; }
+.loading-spinner { width: 36px; height: 36px; border: 3px solid #e0e0dc; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-text { font-size: 14px; color: #888; font-family: 'Kalam', cursive; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.page-content { display: none; }
 footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; border-top: 0.5px solid #e0e0dc; margin-top: 0; }
 @media (max-width: 500px) {
 .hero { flex-direction: column; text-align: center; }
@@ -171,6 +176,13 @@ header { padding: 1rem; }
 </style>
 </head>
 <body>
+<!-- ローディング画面 -->
+<div class="loading-screen" id="loading-screen">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">NAO to official shop</div>
+</div>
+<!-- メインコンテンツ -->
+<div class="page-content" id="page-content">
 <header>
   <div class="header-left">
     <div class="logo-wrap" onclick="document.getElementById('logo-file-input').click()" title="ロゴ画像をアップロード">
@@ -592,7 +604,8 @@ async function loadFromGitHub() {
     if (data.steps) { data.steps.forEach((s, i) => { const el = document.getElementById(`step-${i+1}`); el.textContent = s.text; if (s.isPlaceholder) el.classList.add('step-placeholder'); else el.classList.remove('step-placeholder'); }); }
     if (data.artists) { artists = data.artists; currentArtistId = data.currentArtistId; }
     render();
-  } catch(e) { console.warn('データ読み込み失敗:', e); }
+    showContent();
+  } catch(e) { console.warn('データ読み込み失敗:', e); showContent(); }
 }
 
 /* ===== カバースライダー ===== */
@@ -811,6 +824,12 @@ function copyCartWithShipping() {
   });
 }
 window.addEventListener('load', async () => { render(); await loadFromGitHub(); });
+
+function showContent() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('page-content').style.display = 'block';
+}
 </script>
+</div><!-- /page-content -->
 </body>
 </html>
