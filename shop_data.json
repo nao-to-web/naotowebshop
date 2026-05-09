@@ -183,5 +183,11 @@
       "goods": []
     }
   ],
-  "currentArtistId": "_h9og5st"
+  "currentArtistId": "_h9og5st",
+  "shopSns": {
+    "ig": "https://www.instagram.com/nao_to_official_?igsh=MXVyNTVvbXd3ZHNvZg%3D%3D&utm_source=qr",
+    "fb": "https://www.facebook.com/share/18p53zUoFi/?mibextid=wwXIfr",
+    "x": "",
+    "other": ""
+  }
 }
