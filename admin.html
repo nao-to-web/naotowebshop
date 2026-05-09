@@ -73,6 +73,12 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .artist-desc { font-size: 14px; color: #555; line-height: 1.7; }
 .artist-sns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .sns-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #555; background: #f5f5f3; border: 0.5px solid #e0e0dc; border-radius: 999px; padding: 4px 12px; text-decoration: none; }
+.sns-link.sns-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: #fff; border: none; }
+.sns-link.sns-fb { background: #1877f2; color: #fff; border: none; }
+.sns-link.sns-yt { background: #ff0000; color: #fff; border: none; }
+.sns-link.sns-x { background: #000; color: #fff; border: none; }
+.sns-link.sns-other { background: #555; color: #fff; border: none; }
+.sns-link svg { width: 14px; height: 14px; fill: #fff; flex-shrink: 0; }
 .hero-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .edit-btn { background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 6px 12px; font-size: 13px; color: #666; cursor: pointer; }
 .delete-artist-btn { background: transparent; border: 0.5px solid #f5c1c1; border-radius: 8px; padding: 6px 12px; font-size: 13px; color: #c0392b; cursor: pointer; }
@@ -238,6 +244,7 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     <label>紹介文</label><textarea id="input-desc" rows="3"></textarea>
     <label>Instagram URL</label><input type="text" id="input-sns-ig" placeholder="https://instagram.com/username" />
     <label>Facebook URL</label><input type="text" id="input-sns-fb" placeholder="https://facebook.com/username" />
+    <label>YouTube URL</label><input type="text" id="input-sns-yt" placeholder="https://youtube.com/@username" />
     <label>X (Twitter) URL</label><input type="text" id="input-sns-x" placeholder="https://x.com/username" />
     <label>その他SNS URL</label><input type="text" id="input-sns-other" placeholder="https://example.com" />
     <div class="modal-actions">
@@ -304,40 +311,13 @@ footer { text-align: center; padding: 2rem 1rem; font-size: 13px; color: #aaa; b
     </div>
   </div>
 </div>
-<div class="modal-bg" id="shop-sns-modal">
-  <div class="modal">
-    <h3>📱 公式SNSを編集</h3>
-    <label>Instagram URL</label><input type="text" id="shop-sns-ig" placeholder="https://instagram.com/username" />
-    <label>Facebook URL</label><input type="text" id="shop-sns-fb" placeholder="https://facebook.com/username" />
-    <label>X (Twitter) URL</label><input type="text" id="shop-sns-x" placeholder="https://x.com/username" />
-    <label>その他リンク URL</label><input type="text" id="shop-sns-other" placeholder="https://example.com" />
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('shop-sns-modal')">キャンセル</button>
-      <button class="btn-primary" onclick="saveShopSns()">保存</button>
-    </div>
-  </div>
-</div>
-<!-- 自社SNS編集モーダル -->
-<div class="modal-bg" id="shop-sns-modal">
-  <div class="modal">
-    <h3>公式SNSリンクを編集</h3>
-    <label>Instagram URL</label><input type="text" id="shop-sns-ig" placeholder="https://instagram.com/username" />
-    <label>Facebook URL</label><input type="text" id="shop-sns-fb" placeholder="https://facebook.com/username" />
-    <label>X (Twitter) URL</label><input type="text" id="shop-sns-x" placeholder="https://x.com/username" />
-    <label>その他リンク URL</label><input type="text" id="shop-sns-other" placeholder="https://example.com" />
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('shop-sns-modal')">キャンセル</button>
-      <button class="btn-primary" onclick="saveShopSns()">保存</button>
-    </div>
-  </div>
-</div>
-
 <!-- 公式SNS編集モーダル -->
 <div class="modal-bg" id="shop-sns-modal">
   <div class="modal">
-    <h3>📱 公式SNSを編集</h3>
+    <h3>🔗 公式SNSを編集</h3>
     <label>Instagram URL</label><input type="text" id="shop-sns-ig" placeholder="https://instagram.com/username" />
     <label>Facebook URL</label><input type="text" id="shop-sns-fb" placeholder="https://facebook.com/username" />
+    <label>YouTube URL</label><input type="text" id="shop-sns-yt" placeholder="https://youtube.com/@username" />
     <label>X (Twitter) URL</label><input type="text" id="shop-sns-x" placeholder="https://x.com/username" />
     <label>その他リンク URL</label><input type="text" id="shop-sns-other" placeholder="https://example.com" />
     <div class="modal-actions">
@@ -681,9 +661,10 @@ function renderArtistView() {
         <div class="artist-genre">${a.genre}</div>
         <div class="artist-desc">${a.desc}</div>
         <div class="artist-sns">
-          ${a.snsX ? `<a class="sns-link" href="${a.snsX}" target="_blank"><span>𝕏</span> X</a>` : ''}
           ${a.snsIg ? `<a class="sns-link" href="${a.snsIg}" target="_blank"><span>📷</span> Instagram</a>` : ''}
           ${a.snsFb ? `<a class="sns-link" href="${a.snsFb}" target="_blank"><span>📘</span> Facebook</a>` : ''}
+          ${a.snsYt ? `<a class="sns-link" href="${a.snsYt}" target="_blank"><span>▶️</span> YouTube</a>` : ''}
+          ${a.snsX ? `<a class="sns-link" href="${a.snsX}" target="_blank"><span>𝕏</span> X</a>` : ''}
           ${a.snsOther ? `<a class="sns-link" href="${a.snsOther}" target="_blank"><span>🔗</span> リンク</a>` : ''}
         </div>
       </div>
@@ -718,7 +699,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function openAddArtistModal() {
   artistModalMode = 'add'; pendingAvatarUrl = null;
   document.getElementById('artist-modal-title').textContent = 'アーティストを追加';
-  ['input-name','input-genre','input-desc','input-sns-x','input-sns-ig','input-sns-fb','input-sns-other'].forEach(id => document.getElementById(id).value = '');
+  ['input-name','input-genre','input-desc','input-sns-ig','input-sns-fb','input-sns-yt','input-sns-x','input-sns-other'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('avatar-preview').style.display = 'none';
   document.getElementById('avatar-upload-label').textContent = 'タップして画像を選択';
   document.getElementById('avatar-uploading').style.display = 'none';
@@ -731,9 +712,10 @@ function openEditArtistModal() {
   document.getElementById('input-name').value = a.name;
   document.getElementById('input-genre').value = a.genre;
   document.getElementById('input-desc').value = a.desc;
-  document.getElementById('input-sns-x').value = a.snsX || '';
   document.getElementById('input-sns-ig').value = a.snsIg || '';
   document.getElementById('input-sns-fb').value = a.snsFb || '';
+  document.getElementById('input-sns-yt').value = a.snsYt || '';
+  document.getElementById('input-sns-x').value = a.snsX || '';
   document.getElementById('input-sns-other').value = a.snsOther || '';
   const p = document.getElementById('avatar-preview');
   if (a.avatarImg) { p.src = a.avatarImg; p.style.display = 'block'; document.getElementById('avatar-upload-label').textContent = '✓ 設定済み'; }
@@ -746,15 +728,16 @@ function saveArtist() {
   const name = document.getElementById('input-name').value.trim() || '名無しアーティスト';
   const genre = document.getElementById('input-genre').value.trim() || 'ジャンル未設定';
   const desc = document.getElementById('input-desc').value.trim() || '紹介文未設定';
-  const snsX = document.getElementById('input-sns-x').value.trim();
   const snsIg = document.getElementById('input-sns-ig').value.trim();
   const snsFb = document.getElementById('input-sns-fb').value.trim();
+  const snsYt = document.getElementById('input-sns-yt').value.trim();
+  const snsX = document.getElementById('input-sns-x').value.trim();
   const snsOther = document.getElementById('input-sns-other').value.trim();
   if (artistModalMode === 'add') {
-    const a = { id: genId(), name, genre, desc, snsX, snsIg, snsFb, snsOther, avatarImg: pendingAvatarUrl, goods: [] };
+    const a = { id: genId(), name, genre, desc, snsIg, snsFb, snsYt, snsX, snsOther, avatarImg: pendingAvatarUrl, goods: [] };
     artists.push(a); currentArtistId = a.id;
   } else {
-    const a = getArtist(); a.name = name; a.genre = genre; a.desc = desc; a.snsX = snsX; a.snsIg = snsIg; a.snsFb = snsFb; a.snsOther = snsOther;
+    const a = getArtist(); a.name = name; a.genre = genre; a.desc = desc; a.snsIg = snsIg; a.snsFb = snsFb; a.snsYt = snsYt; a.snsX = snsX; a.snsOther = snsOther;
     if (pendingAvatarUrl) a.avatarImg = pendingAvatarUrl;
   }
   closeModal('artist-modal'); render();
@@ -872,6 +855,7 @@ let shopSns = { ig: '', fb: '', x: '', other: '' };
 function openShopSnsModal() {
   document.getElementById('shop-sns-ig').value = shopSns.ig || '';
   document.getElementById('shop-sns-fb').value = shopSns.fb || '';
+  document.getElementById('shop-sns-yt').value = shopSns.yt || '';
   document.getElementById('shop-sns-x').value = shopSns.x || '';
   document.getElementById('shop-sns-other').value = shopSns.other || '';
   document.getElementById('shop-sns-modal').classList.add('open');
@@ -880,6 +864,7 @@ function openShopSnsModal() {
 function saveShopSns() {
   shopSns.ig = document.getElementById('shop-sns-ig').value.trim();
   shopSns.fb = document.getElementById('shop-sns-fb').value.trim();
+  shopSns.yt = document.getElementById('shop-sns-yt').value.trim();
   shopSns.x = document.getElementById('shop-sns-x').value.trim();
   shopSns.other = document.getElementById('shop-sns-other').value.trim();
   renderShopSns();
@@ -892,9 +877,11 @@ function renderShopSns() {
   const fbSvg = `<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
   const xSvg = `<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
   const otherSvg = `<svg viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>`;
+  const ytSvg = `<svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
   const links = [
     shopSns.ig ? `<a class="sns-link sns-ig" href="${shopSns.ig}" target="_blank">${igSvg} Instagram</a>` : '',
     shopSns.fb ? `<a class="sns-link sns-fb" href="${shopSns.fb}" target="_blank">${fbSvg} Facebook</a>` : '',
+    shopSns.yt ? `<a class="sns-link sns-yt" href="${shopSns.yt}" target="_blank">${ytSvg} YouTube</a>` : '',
     shopSns.x ? `<a class="sns-link sns-x" href="${shopSns.x}" target="_blank">${xSvg} X</a>` : '',
     shopSns.other ? `<a class="sns-link sns-other" href="${shopSns.other}" target="_blank">${otherSvg} リンク</a>` : '',
   ].filter(Boolean).join('');
