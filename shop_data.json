@@ -57,8 +57,8 @@
     {
       "id": "_kmd0hqh",
       "name": "Emiri Morooka/師岡絵美里",
-      "genre": "画家/インド哲学講師",
-      "desc": "紹介文未設定",
+      "genre": "画家/インド叙事詩語り",
+      "desc": "美術館での対話鑑賞ガイド、インドの叙事詩「マハーバーラタ」の語り、文学作品の考察（古典作品から海外SFまで）など多岐にわたる。",
       "snsX": "",
       "snsIg": "",
       "snsOther": "",
@@ -159,7 +159,9 @@
             "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1777792850437_eund.jpg"
           ]
         }
-      ]
+      ],
+      "snsFb": "",
+      "snsYt": ""
     },
     {
       "id": "_3mvld8g",
@@ -184,7 +186,7 @@
       "goods": []
     }
   ],
-  "currentArtistId": "_h9og5st",
+  "currentArtistId": "_kmd0hqh",
   "shopSns": {
     "ig": "https://www.instagram.com/nao_to_official_?igsh=MXVyNTVvbXd3ZHNvZg%3D%3D&utm_source=qr",
     "fb": "https://www.facebook.com/share/18p53zUoFi/?mibextid=wwXIfr",
