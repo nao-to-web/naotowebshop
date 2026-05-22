@@ -89,6 +89,10 @@ main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .goods-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
 .goods-price { font-size: 13px; color: #888; margin-bottom: 8px; }
 .goods-footer { display: flex; gap: 6px; }
+.goods-stock-low { font-size: 11px; color: #e67e22; font-weight: 600; margin-top: 2px; }
+.goods-sold-out { font-size: 11px; color: #c0392b; font-weight: 600; margin-top: 2px; }
+.goods-card.sold-out { opacity: 0.6; }
+.goods-card.sold-out .goods-img { filter: grayscale(60%); }
 .goods-desc { font-size: 12px; color: #777; line-height: 1.6; margin-bottom: 8px; white-space: pre-wrap; }
 .cart-btn { flex: 1; background: transparent; border: 0.5px solid #ccc; border-radius: 8px; padding: 5px 0; font-size: 12px; color: #1a1a1a; cursor: pointer; }
 .cart-btn:hover { background: #f5f5f3; }
@@ -340,6 +344,7 @@ header { padding: 0.6rem 0.75rem; }
     <div class="goods-detail-name" id="detail-name"></div>
     <div class="goods-detail-artist" id="detail-artist"></div>
     <div class="goods-detail-price" id="detail-price"></div>
+    <div id="detail-stock"></div>
     <div class="goods-detail-desc" id="detail-desc"></div>
     <div class="goods-detail-options" id="detail-colors-section" style="display:none;">
       <div class="goods-detail-options-label">カラー</div>
@@ -483,10 +488,15 @@ function renderGoods() {
   const grid = document.getElementById('goods-grid'); if (!grid) return;
   const a = getArtist(); grid.innerHTML = '';
   (a.goods || []).forEach((g, i) => {
-    const card = document.createElement('div'); card.className = 'goods-card';
+    const card = document.createElement('div');
+    const soldOut = g.stock !== null && g.stock !== undefined && g.stock === 0;
+    card.className = 'goods-card' + (soldOut ? ' sold-out' : '');
     const imgContent = (g.imgUrl || g.imgDataUrl) ? `<img src="${g.imgUrl || g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
-    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div></div>`;
-    card.onclick = () => openGoodsDetail(a.id, i);
+    let stockHtml = '';
+    if (soldOut) stockHtml = `<div class="goods-sold-out">売り切れ</div>`;
+    else if (g.stock !== null && g.stock !== undefined && g.stock <= 3) stockHtml = `<div class="goods-stock-low">残りわずか</div>`;
+    card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${stockHtml}</div>`;
+    if (!soldOut) card.onclick = () => openGoodsDetail(a.id, i);
     grid.appendChild(card);
   });
 }
@@ -796,6 +806,17 @@ function openGoodsDetail(artistId, goodsIndex) {
   document.getElementById('detail-price').textContent = `¥${g.price}`;
   document.getElementById('detail-desc').textContent = g.desc || '';
 
+  // 在庫表示
+  const stockEl = document.getElementById('detail-stock');
+  const soldOut = g.stock !== null && g.stock !== undefined && g.stock === 0;
+  if (soldOut) {
+    stockEl.innerHTML = `<div class="goods-sold-out" style="font-size:13px;margin-bottom:8px;">売り切れ</div>`;
+  } else if (g.stock !== null && g.stock !== undefined && g.stock <= 3) {
+    stockEl.innerHTML = `<div class="goods-stock-low" style="font-size:13px;margin-bottom:8px;">残りわずか（${g.stock}点）</div>`;
+  } else {
+    stockEl.innerHTML = '';
+  }
+
   // カラー選択
   const colors = g.colors || [];
   const colorsSection = document.getElementById('detail-colors-section');
@@ -815,6 +836,16 @@ function openGoodsDetail(artistId, goodsIndex) {
   } else { sizesSection.style.display = 'none'; }
 
   const btn = document.getElementById('detail-cart-btn');
+  if (soldOut) {
+    btn.textContent = '売り切れ';
+    btn.disabled = true;
+    btn.style.background = '#ccc';
+    btn.onclick = null;
+    document.getElementById('goods-detail-modal').classList.add('open');
+    return;
+  }
+  btn.disabled = false;
+  btn.style.background = '';
   btn.textContent = '🛒 カートに追加';
   btn.onclick = () => {
     const selectedColor = colorsContainer.querySelector('.option-btn.selected')?.textContent || null;
