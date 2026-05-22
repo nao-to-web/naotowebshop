@@ -84,7 +84,8 @@
           "sizes": [],
           "imgUrls": [
             "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1777792612528_r6hg.jpg"
-          ]
+          ],
+          "stock": 0
         },
         {
           "name": "蝶/ハンドタオル",
@@ -106,7 +107,8 @@
           "sizes": [],
           "imgUrls": [
             "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1777792663180_lbe9.jpg"
-          ]
+          ],
+          "stock": 1
         },
         {
           "name": "ドラウパディ/マグカップ",
