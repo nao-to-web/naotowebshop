@@ -201,10 +201,10 @@
       "avatarImg": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/avatar_1779686637660.jpg",
       "goods": [
         {
-          "name": "ポーチ",
-          "price": "価格未定",
+          "name": "ポーチ/アフリカ生地/ブルー",
+          "price": "3,000円",
           "desc": "",
-          "stock": null,
+          "stock": 1,
           "colors": [],
           "sizes": [],
           "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779778785818_6h2i.jpg",
@@ -213,10 +213,10 @@
           ]
         },
         {
-          "name": "ポーチ/オレンジ",
-          "price": "価格未定",
+          "name": "ポーチ/アフリカ生地/オレンジ",
+          "price": "3,000円",
           "desc": "",
-          "stock": null,
+          "stock": 1,
           "colors": [],
           "sizes": [],
           "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779778803118_v1zl.jpg",
@@ -225,10 +225,10 @@
           ]
         },
         {
-          "name": "ポーチ/ピンク",
+          "name": "ポーチ/アフリカ生地/ピンク",
           "price": "価格未定",
           "desc": "",
-          "stock": null,
+          "stock": 1,
           "colors": [],
           "sizes": [],
           "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779778819812_ebdh.jpg",
@@ -237,10 +237,10 @@
           ]
         },
         {
-          "name": "ポーチセット/ホワイト",
+          "name": "ポーチセット/ミャンマー生地/ホワイトバタフライ",
           "price": "価格未定",
           "desc": "",
-          "stock": null,
+          "stock": 1,
           "colors": [],
           "sizes": [],
           "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779778841743_p8eo.jpg",
@@ -249,10 +249,10 @@
           ]
         },
         {
-          "name": "ポーチセット/レッド",
+          "name": "ポーチセット/ミャンマー生地/レッドバタフライ",
           "price": "価格未定",
           "desc": "",
-          "stock": null,
+          "stock": 1,
           "colors": [],
           "sizes": [],
           "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779778858995_qrj7.jpg",
