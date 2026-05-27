@@ -163,14 +163,30 @@
           ]
         },
         {
-          "name": "新しいグッズ",
-          "price": "価格未定",
-          "desc": "",
-          "stock": null,
+          "name": "トートバッグ/レッド&ブラック",
+          "price": "6,000円",
+          "desc": "Emiri Daily Use Artよりトートバッグを制作しました。キャンバス生地にグッズオリジナルのドローイングが施されています。裏面にはブランドロゴをあしらっています。\n※洗濯時に色落ち、色移りあり‼︎購入者様には洗濯の際の注意書きを添付させていただいています。",
+          "stock": 1,
           "colors": [],
           "sizes": [],
-          "imgUrl": null,
-          "imgUrls": []
+          "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849472682_jjxv.jpg",
+          "imgUrls": [
+            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849472682_jjxv.jpg",
+            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849487595_guy1.jpg"
+          ]
+        },
+        {
+          "name": "トートバッグ/ブルー&オレンジ",
+          "price": "6,000円",
+          "desc": "Emiri Daily Use Artよりトートバッグを制作しました。キャンバス生地にグッズオリジナルのドローイングが施されています。裏面にはブランドロゴと蝶をあしらっています。\n※洗濯時に色落ち、色移りあり‼︎購入者様には洗濯の際の注意書きを添付させていただいています。",
+          "stock": 1,
+          "colors": [],
+          "sizes": [],
+          "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849720887_41i3.jpg",
+          "imgUrls": [
+            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849720887_41i3.jpg",
+            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849734235_fm2g.jpg"
+          ]
         }
       ],
       "snsFb": "",
