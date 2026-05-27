@@ -161,6 +161,16 @@
           "imgUrls": [
             "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1777792850437_eund.jpg"
           ]
+        },
+        {
+          "name": "新しいグッズ",
+          "price": "価格未定",
+          "desc": "",
+          "stock": null,
+          "colors": [],
+          "sizes": [],
+          "imgUrl": null,
+          "imgUrls": []
         }
       ],
       "snsFb": "",
@@ -239,31 +249,31 @@
         {
           "name": "ポーチセット/ミャンマー生地/ホワイトバタフライ",
           "price": "5,000円",
-          "desc": "",
+          "desc": "ミャンマーから持ち帰ったテキスタイルでポーチを作りました。裏地を縫い合わせているため、型崩れしにくく堅牢なつくりとなっています。タグにはオリジナルの着色を施してあります。大きい方はペンケースや文房具入れに、小さい方は化粧品や嗜好品を入れておくのに適したサイズとなっています。\nサイズ：大　縦　㎝横　㎝　マチ　㎝　/　小　縦　㎝横　㎝　マチ　㎝",
           "stock": 1,
           "colors": [],
           "sizes": [],
-          "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779779836507_0hv6.jpg",
+          "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779848489916_a1qo.jpg",
           "imgUrls": [
-            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779779836507_0hv6.jpg"
+            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779848489916_a1qo.jpg"
           ]
         },
         {
           "name": "ポーチセット/ミャンマー生地/レッドバタフライ",
           "price": "5,000円",
-          "desc": "",
+          "desc": "ミャンマーから持ち帰ったテキスタイルでポーチを作りました。裏地を縫い合わせているため、型崩れしにくく堅牢なつくりとなっています。タグにはオリジナルの着色を施してあります。大きい方はペンケースや文房具入れに、小さい方は化粧品や嗜好品を入れておくのに適したサイズとなっています。\nサイズ：大　縦　㎝横　㎝　マチ　㎝　/　小　縦　㎝横　㎝　マチ　㎝",
           "stock": 1,
           "colors": [],
           "sizes": [],
-          "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779779875900_668n.jpg",
+          "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849061618_de4w.jpg",
           "imgUrls": [
-            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779779875900_668n.jpg"
+            "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779849061618_de4w.jpg"
           ]
         }
       ]
     }
   ],
-  "currentArtistId": "_78h2snj",
+  "currentArtistId": "_kmd0hqh",
   "shopSns": {
     "ig": "https://www.instagram.com/nao_to_official_?igsh=MXVyNTVvbXd3ZHNvZg%3D%3D&utm_source=qr",
     "fb": "https://www.facebook.com/share/18p53zUoFi/?mibextid=wwXIfr",
