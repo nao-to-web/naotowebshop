@@ -35,7 +35,7 @@
         {
           "name": "なかよし/Tシャツ",
           "price": "6,000円",
-          "desc": "手描きのオリジナル絵画『なかよし』を中央にプリントしました。ボディは9オンスと厚手でほつれや伸びがしにくい堅牢なつくりとなっております。左袖には「doogoo_forest（土偶の森）」の刺繍が施されています。カラーはホワイト/カーキの2種類、サイズはXL/L/Mの3つからお選びいただけます。",
+          "desc": "手描きのオリジナル絵画『なかよし』を中央にプリントしました。ボディは9オンスと厚手のため、洗濯による伸びに強くなっています。左袖には「doogoo_forest（土偶の森）」の刺繍が施されています。カラーはホワイト/カーキの2種類、サイズはXL/L/Mの3つからお選びいただけます。\n素材：綿100％",
           "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779940153070_2y09.jpg",
           "colors": [
             "ホワイト",
@@ -132,7 +132,7 @@
         {
           "name": "ドラウパディ/Tシャツ",
           "price": "5,000円",
-          "desc": "インドの叙事詩『マハーバーラタ』よりインスピレーションを得て描いた手描き絵画をTシャツにしました。ボディは綿100%。サイズはMとLがございます。",
+          "desc": "インドの叙事詩『マハーバーラタ』よりインスピレーションを得て描いた手描き絵画をTシャツにしました。背面上部にはグッズオリジナルの蝶をあしらってあります。サイズはMとLがございます。\n素材：綿100％",
           "imgUrl": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/goods_1779939857137_r0h8.jpg",
           "colors": [],
           "sizes": [
@@ -307,7 +307,7 @@
       ]
     }
   ],
-  "currentArtistId": "_h9og5st",
+  "currentArtistId": "_kmd0hqh",
   "shopSns": {
     "ig": "https://www.instagram.com/nao_to_official_?igsh=MXVyNTVvbXd3ZHNvZg%3D%3D&utm_source=qr",
     "fb": "https://www.facebook.com/share/18p53zUoFi/?mibextid=wwXIfr",
