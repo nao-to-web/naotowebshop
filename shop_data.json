@@ -306,9 +306,22 @@
           ]
         }
       ]
+    },
+    {
+      "id": "_rrr37f3",
+      "name": "ハーポ部長",
+      "genre": "編集者",
+      "desc": "紹介文未設定",
+      "snsIg": "https://www.instagram.com/harpo_bee?igsh=MXE0N2tlbTd3ODVlOQ==",
+      "snsFb": "https://www.facebook.com/share/18HSrAL66R/?mibextid=wwXIfr",
+      "snsYt": "",
+      "snsX": "",
+      "snsOther": "https://ayacari.base.shop/items/104200844?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZnRzaASF2B5leHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadRpgJe2iqKzvXaYSVVivrbkleKPt11_dA09aCLb0pegNnVR_70m22YduICAQ_aem_hJiI13YyuRhoGkkv1fiT1A",
+      "avatarImg": "https://raw.githubusercontent.com/nao-to-web/naotowebshop/main/images/avatar_1780021678282.jpg",
+      "goods": []
     }
   ],
-  "currentArtistId": "_kmd0hqh",
+  "currentArtistId": "_rrr37f3",
   "shopSns": {
     "ig": "https://www.instagram.com/nao_to_official_?igsh=MXVyNTVvbXd3ZHNvZg%3D%3D&utm_source=qr",
     "fb": "https://www.facebook.com/share/18p53zUoFi/?mibextid=wwXIfr",
