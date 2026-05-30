@@ -844,6 +844,22 @@ function saveEditGoods() {
 }
 
 
+/* ===== コンセプト ===== */
+function openConceptModal() {
+  document.getElementById('input-site-title').value = document.getElementById('site-title-text').textContent;
+  document.getElementById('input-concept-title').value = document.getElementById('concept-title').textContent;
+  document.getElementById('input-concept-body').value = document.getElementById('concept-body').textContent;
+  document.getElementById('concept-modal').classList.add('open');
+}
+function saveConceptModal() {
+  const t = document.getElementById('input-site-title').value.trim() || 'NAO to official shop';
+  document.getElementById('site-title-text').textContent = t;
+  document.getElementById('footer-name').textContent = t;
+  document.getElementById('concept-title').textContent = document.getElementById('input-concept-title').value.trim() || 'ショップのタイトル';
+  document.getElementById('concept-body').textContent = document.getElementById('input-concept-body').value.trim();
+  closeModal('concept-modal');
+}
+
 /* ===== 注文手順 ===== */
 function openOrderGuideModal() {
   [1,2,3].forEach(n => {
