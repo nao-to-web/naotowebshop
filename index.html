@@ -494,7 +494,7 @@ function renderGoods() {
     const imgContent = (g.imgUrl || g.imgDataUrl) ? `<img src="${g.imgUrl || g.imgDataUrl}" alt="${g.name}" />` : `<span>🎁</span>`;
     let stockHtml = '';
     if (soldOut) stockHtml = `<div class="goods-sold-out">売り切れ</div>`;
-    else if (g.stock !== null && g.stock !== undefined && g.stock <= 3) stockHtml = `<div class="goods-stock-low">残りわずか</div>`;
+    else if (g.stock !== null && g.stock !== undefined && g.stock < 5) stockHtml = `<div class="goods-stock-low">残りわずか</div>`;
     card.innerHTML = `<div class="goods-img">${imgContent}</div><div class="goods-body"><div class="goods-name">${g.name}</div><div class="goods-price">¥${g.price}</div>${stockHtml}</div>`;
     if (!soldOut) card.onclick = () => openGoodsDetail(a.id, i);
     grid.appendChild(card);
@@ -811,8 +811,8 @@ function openGoodsDetail(artistId, goodsIndex) {
   const soldOut = g.stock !== null && g.stock !== undefined && g.stock === 0;
   if (soldOut) {
     stockEl.innerHTML = `<div class="goods-sold-out" style="font-size:13px;margin-bottom:8px;">売り切れ</div>`;
-  } else if (g.stock !== null && g.stock !== undefined && g.stock <= 3) {
-    stockEl.innerHTML = `<div class="goods-stock-low" style="font-size:13px;margin-bottom:8px;">残りわずか（${g.stock}点）</div>`;
+  } else if (g.stock !== null && g.stock !== undefined && g.stock < 5) {
+    stockEl.innerHTML = `<div class="goods-stock-low" style="font-size:13px;margin-bottom:8px;">残りわずか</div>`;
   } else {
     stockEl.innerHTML = '';
   }
